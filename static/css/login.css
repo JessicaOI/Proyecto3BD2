@@ -101,6 +101,15 @@ main{
     border-radius: 20px;
 }
 
+.bt{
+    transition: 0.2s;
+}
+
+.bt:hover{
+    background-color: #46A2FD!important;
+    color: #fff!important;
+}
+
 .contenedor__login-register form h2{
     font-size: 30px;
     text-align: center;

@@ -1,8 +1,13 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from neo4j import GraphDatabase
-
+import random
+import os
 
 app = Flask(__name__)
+
+# Generate a secret key or use your own secret key
+secret_key = os.urandom(24)
+app.secret_key = secret_key
 
 neo4j_uri = "neo4j+s://2144e45a.databases.neo4j.io"
 neo4j_user = "neo4j"
@@ -16,7 +21,7 @@ driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
 def login():
     if request.method == 'POST':
         # Obtener los datos del formulario
-        email = request.form.get("correoI")
+        email = request.form.get("correo")
         password = request.form.get("contra")
 
         # Verificar si el usuario existe en la base de datos
@@ -26,17 +31,21 @@ def login():
                 return jsonify({"error": "El usuario no existe"}), 404
 
             # Verificar si la contraseña coincide
-            if user["password"] != password:
+            if user['u']["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
             # El usuario ha iniciado sesión correctamente
             # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
-            return redirect(url_for("home"))
+            return render_template("/home.html", user=user)
 
     # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
     return render_template("/login.html")
 
-# Punto final para registrar un nuevo usuario
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 
 @app.route("/register", methods=["POST"])
@@ -44,7 +53,13 @@ def register():
     # Obtener los datos del formulario
     name = request.form.get("nombre_completo")
     email = request.form.get("correo")
+    fecha_nac = request.form.get("fecha_nac")
+    tipo_cuenta = request.form.get("tipo_cuenta")
     password = request.form.get("contrasena")
+
+    # Variables necesarias
+    id = random.randint(1, 10000000)
+    cuenta_activa = True
 
     # Verificar si el usuario ya existe en la base de datos
     with driver.session() as session:
@@ -54,15 +69,19 @@ def register():
 
         # Crear el nuevo usuario en la base de datos
         user_data = {
+            "id": id,
             "name": name,
             "email": email,
-            "password": password
+            "password": password,
+            "dob": fecha_nac,
+            "active": cuenta_activa,
+            "account_type": tipo_cuenta
         }
         session.write_transaction(_add_user, user_data)
 
     # El usuario se ha registrado correctamente
     # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
-    return redirect(url_for("home"))
+    return render_template("/login.html")
 
 
 @app.route("/add_user", methods=["POST"])

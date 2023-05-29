@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login y Register</title>
+    <title>Login</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 
@@ -33,7 +33,7 @@
                 <!--Login-->
                 <form action="{{ url_for('login') }}" class="formulario__login" method="POST">
                     <h2>Iniciar Sesión</h2>
-                    <input type="text" placeholder="Correo Electrónico" name="correoI">
+                    <input type="text" placeholder="Correo Electrónico" name="correo">
                     <input type="password" placeholder="Contraseña" name="contra">
                     <input type="submit" class="bt" value="Entrar">
                 </form>
@@ -43,7 +43,8 @@
                     <h2>Regístrarse</h2>
                     <input type="text" placeholder="Nombre completo" name="nombre_completo"> 
                     <input type="text" placeholder="Correo Electrónico" name="correo">
-                    <input type="text" placeholder="Usuario" name="usuario">
+                    <input type="date" placeholder="Fecha de Nacimiento" name="fecha_nac">
+                    <input type="text" placeholder="Tipo de Cuenta (Normal o Premium)" name="tipo_cuenta">
                     <input type="password" placeholder="Contraseña" name="contrasena">
                     <input type="submit" class="bt" value="Registrarse">
                 </form>
