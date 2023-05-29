@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from neo4j import GraphDatabase
+
 
 app = Flask(__name__)
 
@@ -11,9 +12,57 @@ neo4j_password = "0VbP5DwbQ2y7YcwKoGKB3vX06a8VnZiwNZp62KXyj_0"
 driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
 
 
-@app.route("/")
-def login_register():
+@app.route("/", methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        email = request.form.get("correoI")
+        password = request.form.get("contra")
+
+        # Verificar si el usuario existe en la base de datos
+        with driver.session() as session:
+            user = session.read_transaction(_get_user_by_email, email)
+            if user is None:
+                return jsonify({"error": "El usuario no existe"}), 404
+
+            # Verificar si la contraseña coincide
+            if user["password"] != password:
+                return jsonify({"error": "La contraseña es incorrecta"}), 401
+
+            # El usuario ha iniciado sesión correctamente
+            # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
+            return redirect(url_for("home"))
+
+    # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
     return render_template("/login.html")
+
+# Punto final para registrar un nuevo usuario
+
+
+@app.route("/register", methods=["POST"])
+def register():
+    # Obtener los datos del formulario
+    name = request.form.get("nombre_completo")
+    email = request.form.get("correo")
+    password = request.form.get("contrasena")
+
+    # Verificar si el usuario ya existe en la base de datos
+    with driver.session() as session:
+        user = session.read_transaction(_get_user_by_email, email)
+        if user:
+            return jsonify({"error": "El usuario ya existe"}), 409
+
+        # Crear el nuevo usuario en la base de datos
+        user_data = {
+            "name": name,
+            "email": email,
+            "password": password
+        }
+        session.write_transaction(_add_user, user_data)
+
+    # El usuario se ha registrado correctamente
+    # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
+    return redirect(url_for("home"))
 
 
 @app.route("/add_user", methods=["POST"])
@@ -229,6 +278,14 @@ def _create_directed_by_relation(tx, data):
         hiring_date=data.get("hiring_date"),
         salary=data.get("salary"),
     )
+
+# Función para obtener un usuario por su correo electrónico
+
+
+def _get_user_by_email(tx, email):
+    query = "MATCH (u:User) WHERE u.email = $email RETURN u"
+    result = tx.run(query, email=email)
+    return result.single()
 
 
 if __name__ == "__main__":
