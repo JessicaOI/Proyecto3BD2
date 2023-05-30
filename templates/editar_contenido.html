@@ -34,7 +34,7 @@
                         {% endif %}
                     {% endwith %}
                     <div class="d-flex-spaced my-4">
-                        <h3>Editar nuevo contenido</h3>
+                        <h3>Editar nuevo contenido {{content.l}}</h3>
                         <a href="{{ url_for('admin_home') }}" class="boton">Regresar</a>
                     </div>
                     <form class="form_style" action="/edit_content/{{content_id}}" method="POST">
@@ -54,7 +54,7 @@
                         <input type="text" name="genre" required placeholder="{{content.c.genre}}">
                         <br><br>
                         <label for="duration">Duración (minutos):</label>
-                        <input type="number" name="duration" required placeholder="{{content.c.duration}}">
+                        <input id="duration" type="number" name="duration" required placeholder="{{content.c.duration}}">
                         <br><br>
                         <label for="image">URL de la imagen:</label>
                         <input type="url" name="image" required placeholder="{{content.c.image}}">
@@ -86,11 +86,15 @@
     
         // Obtener el campo de número total de episodios
         var episodesField = document.getElementById('episodes_field');
+
+        var duration = document.getElementById('duration');
     
         // Agregar un evento de cambio al campo de tipo de contenido
         contentTypeField.addEventListener('change', function() {
             // Mostrar u ocultar el campo de episodios según el valor seleccionado
             episodesField.style.display = this.value === 'series' ? 'block' : 'none';
+            // Establecer el atributo placeholder del campo de duración
+            duration.placeholder = this.value === 'series' ? '{{content.c.episode_duration}}' : '{{content.c.duration}}';
         });
     </script>
 </body>
