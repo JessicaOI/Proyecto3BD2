@@ -13,7 +13,8 @@
 		<div class="contenedor">
 			<h2 class="logotipo">NEWFLIX</h2>
 			<nav>
-				<a href="{{ url_for('admin_home') }}" class="activo">Home</a>
+				<a href="#" class="activo">Home</a>
+				<a href ="#" class="">Busqueda</a>
 				<a href="{{ url_for('logout') }}">Cerrar Sesion</a>
 			</nav>
 		</div>
@@ -27,10 +28,7 @@
 					<h1>Bienvenido: {{user.u.name}}</h1>
 				</div>
 				<div class="col-lg-12 my-4">
-					<div class="d-flex-spaced">
-						<h3>Acciones de Contenido:</h3>
-						<a class="boton" href="{{ url_for('add_content') }}">Agregar Contenido</a>
-					</div>
+					<h3>Acciones de Contenido:</h3>
 				</div>
 				<div class="cl-lg-12">
 					<div class="container">

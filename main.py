@@ -42,16 +42,13 @@ def login():
             if user['u']["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
-             # Get all content from the database
-            contents = session.read_transaction(_get_all_content)
-
             # Store the user ID in the session
             session_flask['user_id'] = user['u']['user_id']
 
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
                 # Página de inicio para administradores
-                return render_template("admin_home.html", user=user, contents=contents)
+                return render_template("admin_home.html", user=user)
 
             # El usuario ha iniciado sesión correctamente
             # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
@@ -115,20 +112,17 @@ def login_admin():
             if user['u']["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
-             # Get all content from the database
-            contents = session.read_transaction(_get_all_content)
-
             # Store the user ID in the session
             session_flask['user_id'] = user['u']['user_id']
 
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
                 # Página de inicio para administradores
-                return render_template("admin_home.html", user=user, contents=contents)
+                return render_template("admin_home.html", user=user)
 
             # El usuario ha iniciado sesión correctamente
             # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
-            return render_template("/admin_home.html", user=user, contents=contents)
+            return render_template("/admin_home.html", user=user)
 
     # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
     return render_template("/login_admin.html")
@@ -178,15 +172,11 @@ def admin_home():
         # Query the user by ID
         user = session.read_transaction(_get_user_by_id, user_id)
 
-        # Check if the user is logged in
-        if user is None:
-            return redirect(url_for('login_admin'))
+    # Check if the user is logged in
+    if user is None:
+        return redirect(url_for('login_admin'))
 
-        # Get all content from the database
-        contents = session.read_transaction(_get_all_content)
-
-    return render_template("/admin_home.html", user=user, contents=contents)
-
+    return render_template("/admin_home.html", user=user)
 
 # Funciones de edición de contenido
 
@@ -292,9 +282,12 @@ def add_content():
 
 @app.route("/edit_content/<content_id>", methods=["GET", "POST"])
 def edit_content(content_id):
-    # Get the user ID from the session
-    user_id = session_flask.get('user_id')
+    # Obtener el usuario actual de la sesión
+    user = session.get("user")
+    if not user or "admin" not in user["u"].labels:
+        return redirect(url_for("login_admin"))
 
+    # Obtener los detalles del contenido por su ID
     with driver.session() as session:
         # Query the user by ID
         user = session.read_transaction(_get_user_by_id, user_id)
@@ -366,7 +359,7 @@ def edit_content(content_id):
             with driver.session() as session:
                 session.write_transaction(_update_series, series_data)
 
-            backlog = f"Backlog: Serie {title} creada por el usuario {user['u']['name']}"
+            return redirect(url_for("admin_dashboard"))
 
             # Crear relación entre el administrador y el contenido creado
             relation_data = {
@@ -714,11 +707,6 @@ def _delete_content(tx, content_id):
         """,
         content_id=content_id
     )
-
-
-def _get_all_content(tx):
-    result = tx.run("MATCH (c:Content) RETURN c")
-    return [record['c'] for record in result]
 
 
 if __name__ == "__main__":
