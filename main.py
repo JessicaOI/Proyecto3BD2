@@ -642,6 +642,7 @@ def edit_content_relation():
 
 
 def _edit_content_relation(tx, data):
+    data['content_id'] = int(data['content_id'])  # Convert content_id to int
     query = """
     MATCH (a:Admin {id: $admin_id})
     MATCH (c:Content {id: $content_id})
@@ -684,6 +685,7 @@ def _get_content_by_id(tx, content_id):
 
 
 def _update_movie(tx, movie_data):
+    movie_data['id'] = int(movie_data['id'])  # Convert id to int
     tx.run(
         """
         MATCH (m:Movie {id: $id})
@@ -694,6 +696,7 @@ def _update_movie(tx, movie_data):
 
 
 def _update_series(tx, series_data):
+    series_data['id'] = int(series_data['id'])  # Convert id to int
     tx.run(
         """
         MATCH (s:Series {id: $id})
