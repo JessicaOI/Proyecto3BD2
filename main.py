@@ -202,7 +202,8 @@ def add_content():
         # Obtener los datos del formulario
         content_type = request.form.get("content_type")
         title = request.form.get("title")
-        release_date = request.form.get("release_date")
+        release_date = datetime.strptime(
+            request.form.get("release_date"), "%Y-%m-%d").date()
         genre = request.form.get("genre")
         duration = request.form.get("duration")
         image = request.form.get("image")
