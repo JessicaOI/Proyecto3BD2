@@ -308,7 +308,7 @@ def edit_content(content_id):
                     "title": title,
                     "release_date": release_date,
                     "genre": genre,
-                    "duration": duration,
+                    "duration": int(duration),
                     "image": image
                 }
                 session.write_transaction(_update_movie, movie_data)
@@ -322,7 +322,7 @@ def edit_content(content_id):
                     "title": title,
                     "release_date": release_date,
                     "genre": genre,
-                    "episode_duration": episode_duration,
+                    "episode_duration": int(episode_duration),
                     "total_episodes": total_episodes
                 }
                 session.write_transaction(_update_series, series_data)
