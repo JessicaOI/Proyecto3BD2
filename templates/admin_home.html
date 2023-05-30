@@ -48,7 +48,6 @@
 									<tr>
 										<td>{{ content.title }} {{ content.id }}</td>
 										<td>{{ content.release_date }}</td>
-<<<<<<< HEAD
 										
 										<td>
 											| 
@@ -64,15 +63,6 @@
 													<input class="boton" type="submit" value="Eliminar">
 												</form>
 											</div>
-=======
-										<td>{{ content.genre }}</td>
-										<td>{{ content.duration }}</td>
-										<td>
-											<a href="/edit_content/{{ content.id }}">Editar</a>
-											<form action="/delete_content/{{ content.id }}" method="POST" style="display: inline;">
-												<input type="submit" value="Eliminar">
-											</form>
->>>>>>> parent of c0ac5c3 (tabla bonita)
 										</td>
 									</tr>
 									{% endfor %}
