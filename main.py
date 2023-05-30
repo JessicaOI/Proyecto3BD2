@@ -45,7 +45,7 @@ def login():
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
                 # Página de inicio para administradores
-                return render_template("admin_home.html", user=user, contents=contents)
+                return redirect(url_for('admin_home'))
 
             # El usuario ha iniciado sesión correctamente
             # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
@@ -124,11 +124,11 @@ def login_admin():
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
                 # Página de inicio para administradores
-                return render_template("admin_home.html", user=user, contents=contents)
+                return redirect(url_for('admin_home'))
 
             # El usuario ha iniciado sesión correctamente
             # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
-            return render_template("/admin_home.html", user=user, contents=contents)
+            return redirect(url_for('admin_home'))
 
     # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
     return render_template("/login_admin.html")
@@ -180,7 +180,7 @@ def admin_home():
 
         # Check if the user is logged in
         if user is None:
-            return redirect(url_for('login_admin'))
+            return redirect(url_for('admin_home'))
 
         # Get all content from the database
         contents = session.read_transaction(_get_all_content)
@@ -298,7 +298,6 @@ def edit_content(content_id):
     with driver.session() as session:
         # Query the user by ID
         user = session.read_transaction(_get_user_by_id, user_id)
-
         content = session.read_transaction(_get_content_by_id, content_id)
 
     # Check if the user is logged in
@@ -389,16 +388,10 @@ def edit_content(content_id):
 
 @app.route("/delete_content/<content_id>", methods=["POST"])
 def delete_content(content_id):
-    # Obtener el usuario actual de la sesión
-    user = session.get("user")
-    if not user or "admin" not in user["u"].labels:
-        return redirect(url_for("login_admin"))
-
-    # Eliminar el contenido de la base de datos
     with driver.session() as session:
         session.write_transaction(_delete_content, content_id)
-
-    return redirect(url_for("admin_dashboard"))
+    flash("Contenido eliminado con éxito")
+    return redirect(url_for("admin_home"))
 
 
 @app.route("/add_user", methods=["POST"])
@@ -680,6 +673,7 @@ def _get_user_by_id(tx, id):
 
 
 def _get_content_by_id(tx, content_id):
+    content_id = int(content_id)
     result = tx.run(
         """
         MATCH (c) WHERE c.id = $content_id RETURN c
@@ -710,9 +704,10 @@ def _update_series(tx, series_data):
 
 
 def _delete_content(tx, content_id):
+    content_id = int(content_id)
     tx.run(
         """
-        MATCH (c) WHERE c.id = $content_id DELETE c
+        MATCH (c) WHERE c.id = $content_id DETACH DELETE c
         """,
         content_id=content_id
     )
@@ -720,7 +715,7 @@ def _delete_content(tx, content_id):
 
 def _get_all_content(tx):
     result = tx.run("MATCH (c:Content) RETURN c")
-    return [record['c'] for record in result]
+    return [dict(record["c"]._properties) for record in result]
 
 
 if __name__ == "__main__":

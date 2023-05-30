@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/estilosp.css') }}">
 	<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<title>AGREGAR CONTENIDO</title>
+	<title>EDITAR CONTENIDO</title>
 </head>
 <body>
 <header>
@@ -34,7 +34,7 @@
                         {% endif %}
                     {% endwith %}
                     <div class="d-flex-spaced my-4">
-                        <h3>Agregar nuevo contenido</h3>
+                        <h3>Editar nuevo contenido</h3>
                         <a href="{{ url_for('admin_home') }}" class="boton">Regresar</a>
                     </div>
                     <form class="form_style" action="/edit_content/{{content_id}}" method="POST">
@@ -45,23 +45,23 @@
                         </select>
                         <br><br>
                         <label for="title">Título:</label>
-                        <input type="text" name="title" required>
+                        <input type="text" name="title" required placeholder="{{content.c.title}}">
                         <br><br>
                         <label for="release_date">Fecha de lanzamiento:</label>
-                        <input type="date" name="release_date" required>
+                        <input type="date" name="release_date" required placeholder="{{content.c.release_date}}">
                         <br><br>
                         <label for="genre">Género/s:</label>
-                        <input type="text" name="genre" required>
+                        <input type="text" name="genre" required placeholder="{{content.c.genre}}">
                         <br><br>
                         <label for="duration">Duración (minutos):</label>
-                        <input type="number" name="duration" required>
+                        <input type="number" name="duration" required placeholder="{{content.c.duration}}">
                         <br><br>
                         <label for="image">URL de la imagen:</label>
-                        <input type="url" name="image" required>
+                        <input type="url" name="image" required placeholder="{{content.c.image}}">
                         <br><br>
                         <div id="episodes_field" style="display: none;">
                             <label for="total_episodes">Número total de episodios:</label>
-                            <input type="number" name="total_episodes">
+                            <input type="number" name="total_episodes" placeholder="{{content.c.total_episodes}}">
                             <br><br>
                         </div>
                         <label for="nota">Nota del Administrador:</label>

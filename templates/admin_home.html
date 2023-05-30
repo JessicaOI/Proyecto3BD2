@@ -33,7 +33,7 @@
 						<a class="boton" href="/add_content">Añadir Contenido</a>
 					</div>
 				</div>
-				<div class="cl-lg-12">
+				<div class="col-lg-12">
 					<div class="container">
 						<div class="row">
 							<div class="col-lg-12">
@@ -59,9 +59,9 @@
 										</td>
 										
 										<td>{{ content.duration }}</td>
-										<td>
+										<td style="width: 320px;">
 											<div class="row justify-content-center">
-												<a class="boton" href="/edit_content/{{ content.content_id }}">Editar</a>
+												<a class="boton" href="/edit_content/{{ content.id }}">Editar</a>
 												<form action="/delete_content/{{ content.id }}" method="POST" style="display: inline;">
 													<input class="boton" type="submit" value="Eliminar">
 												</form>
