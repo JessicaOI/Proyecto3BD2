@@ -215,7 +215,7 @@ def add_content():
         release_date = datetime.strptime(
             request.form.get("release_date"), "%Y-%m-%d").date()
         genre = request.form.get("genre")
-        duration = request.form.get("duration")
+        duration = int(request.form.get("duration"))
         image = request.form.get("image")
         nota = request.form.get("nota")
 
@@ -256,8 +256,7 @@ def add_content():
         elif content_type == "series":
             # Variables necesarias para una serie
             id = random.randint(1, 10000000)
-            episode_duration = request.form.get("episode_duration")
-            total_episodes = request.form.get("total_episodes")
+            total_episodes = int(request.form.get("total_episodes"))
 
             # Crear la nueva serie en la base de datos
             series_data = {
@@ -265,8 +264,9 @@ def add_content():
                 "title": title,
                 "release_date": release_date,
                 "genre": genre_list,
-                "episode_duration": episode_duration,
-                "total_episodes": total_episodes
+                "episode_duration": duration,
+                "total_episodes": total_episodes,
+                "image": image
             }
             with driver.session() as session:
                 session.write_transaction(_add_series, series_data)
@@ -352,7 +352,6 @@ def edit_content(content_id):
             flash("Contenido editado con éxito")
 
         elif content_type == "series":
-            episode_duration = request.form.get("episode_duration")
             total_episodes = request.form.get("total_episodes")
 
             # Crear la nueva serie en la base de datos
@@ -361,7 +360,7 @@ def edit_content(content_id):
                 "title": title,
                 "release_date": release_date,
                 "genre": genre_list,
-                "episode_duration": episode_duration,
+                "episode_duration": duration,
                 "total_episodes": total_episodes
             }
             with driver.session() as session:
@@ -392,6 +391,26 @@ def delete_content(content_id):
         session.write_transaction(_delete_content, content_id)
     flash("Contenido eliminado con éxito")
     return redirect(url_for("admin_home"))
+
+# Gestion de Usuarios
+
+
+@app.route("/gestionar_usuarios")
+def gestionar_usuarios():
+    # Verificar si el usuario tiene permisos de administrador
+    if "admin" not in session_flask.get('user_id', {}).labels:
+        return redirect(url_for('login_admin'))
+
+    with driver.session() as session:
+        # Obtener todos los usuarios de la base de datos
+        users = session.read_transaction(_get_all_users)
+
+    return render_template("/gestionar_usuarios.html", users=users)
+
+
+def _get_all_users(tx):
+    result = tx.run("MATCH (u:User) RETURN u")
+    return [record["u"] for record in result]
 
 
 @app.route("/add_user", methods=["POST"])
@@ -465,13 +484,14 @@ def add_series():
 
 def _add_series(tx, data):
     tx.run(
-        "CREATE (s:Content:Series {id: $id, title: $title, release_date: $release_date, genre: $genre, episode_duration: $episode_duration, total_episodes: $total_episodes})",
+        "CREATE (s:Content:Series {id: $id, title: $title, release_date: $release_date, genre: $genre, episode_duration: $episode_duration, total_episodes: $total_episodes, image: $image})",
         id=data.get("id"),
         title=data.get("title"),
         release_date=data.get("release_date"),
         genre=data.get("genre"),
         episode_duration=data.get("episode_duration"),
         total_episodes=data.get("total_episodes"),
+        image=data.get("image"),
     )
 
 
