@@ -19,6 +19,12 @@ neo4j_password = "0VbP5DwbQ2y7YcwKoGKB3vX06a8VnZiwNZp62KXyj_0"
 driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
 
 
+@app.route('/logout')
+def logout():
+    session_flask.clear()
+    return redirect(url_for('login'))
+
+
 @app.route("/", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -40,7 +46,7 @@ def login():
             contents = session.read_transaction(_get_all_content)
 
             # Store the user ID in the session
-            session_flask['user_id'] = user['u']['id']
+            session_flask['user_id'] = user['u']['user_id']
 
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
@@ -55,12 +61,6 @@ def login():
     return render_template("/login.html")
 
 
-@app.route('/logout')
-def logout():
-    session_flask.clear()
-    return redirect(url_for('login'))
-
-
 @app.route("/register", methods=["POST"])
 def register():
     # Obtener los datos del formulario
@@ -72,7 +72,7 @@ def register():
     password = request.form.get("contrasena")
 
     # Variables necesarias
-    id = random.randint(1, 10000000)
+    user_id = random.randint(1, 10000000)
     cuenta_activa = True
 
     # Verificar si el usuario ya existe en la base de datos
@@ -83,7 +83,7 @@ def register():
 
         # Crear el nuevo usuario en la base de datos
         user_data = {
-            "id": id,
+            "user_id": user_id,
             "name": name,
             "email": email,
             "password": password,
@@ -119,7 +119,7 @@ def login_admin():
             contents = session.read_transaction(_get_all_content)
 
             # Store the user ID in the session
-            session_flask['user_id'] = user['u']['id']
+            session_flask['user_id'] = user['u']['user_id']
 
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
@@ -144,7 +144,7 @@ def register_admin():
     password = request.form.get("contrasena")
 
     # Variables necesarias
-    id = random.randint(1, 10000000)
+    user_id = random.randint(1, 10000000)
     cuenta_activa = True
 
     # Verificar si el usuario ya existe en la base de datos
@@ -155,7 +155,7 @@ def register_admin():
 
         # Crear el nuevo usuario en la base de datos
         admin_data = {
-            "id": id,
+            "user_id": user_id,
             "name": name,
             "email": email,
             "password": password,
@@ -223,11 +223,11 @@ def add_content():
 
         if content_type == "movie":
             # Variables necesarias para una película
-            id = random.randint(1, 10000000)
+            content_id = random.randint(1, 10000000)
 
             # Crear la nueva película en la base de datos
             movie_data = {
-                "id": id,
+                "content_id": content_id,
                 "title": title,
                 "release_date": release_date,
                 "genre": genre_list,
@@ -242,7 +242,7 @@ def add_content():
             # Crear relación entre el administrador y el contenido creado
             relation_data = {
                 "admin_id": user_id,
-                "content_id": id,
+                "content_id": content_id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
                 "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
@@ -255,13 +255,13 @@ def add_content():
 
         elif content_type == "series":
             # Variables necesarias para una serie
-            id = random.randint(1, 10000000)
+            content_id = random.randint(1, 10000000)
             episode_duration = request.form.get("episode_duration")
             total_episodes = request.form.get("total_episodes")
 
             # Crear la nueva serie en la base de datos
             series_data = {
-                "id": id,
+                "content_id": content_id,
                 "title": title,
                 "release_date": release_date,
                 "genre": genre_list,
@@ -276,7 +276,7 @@ def add_content():
             # Crear relación entre el administrador y el contenido creado
             relation_data = {
                 "admin_id": user_id,
-                "content_id": id,
+                "content_id": content_id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
                 "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
@@ -287,7 +287,7 @@ def add_content():
 
             flash("Contenido creado con éxito")
 
-    return render_template("/agregar_contenido.html", user=user)
+    return render_template("/agregar_contenido.html")
 
 
 @app.route("/edit_content/<content_id>", methods=["GET", "POST"])
@@ -298,8 +298,9 @@ def edit_content(content_id):
     with driver.session() as session:
         # Query the user by ID
         user = session.read_transaction(_get_user_by_id, user_id)
-
+        print(user)
         content = session.read_transaction(_get_content_by_id, content_id)
+        print(content)
 
     # Check if the user is logged in
     if user is None:
@@ -326,7 +327,7 @@ def edit_content(content_id):
 
             # Crear la nueva película en la base de datos
             movie_data = {
-                "id": content_id,
+                "content_id": content_id,
                 "title": title,
                 "release_date": release_date,
                 "genre": genre_list,
@@ -358,7 +359,7 @@ def edit_content(content_id):
 
             # Crear la nueva serie en la base de datos
             series_data = {
-                "id": content_id,
+                "content_id": content_id,
                 "title": title,
                 "release_date": release_date,
                 "genre": genre_list,
@@ -384,7 +385,7 @@ def edit_content(content_id):
 
             flash("Contenido editado con éxito")
 
-    return render_template("/editar_contenido.html", user=user, content=content, content_id=content_id)
+    return render_template("/editar_contenido.html", content=content, content_id=content_id)
 
 
 @app.route("/delete_content/<content_id>", methods=["POST"])
@@ -411,8 +412,8 @@ def add_user():
 
 def _add_user(tx, data):
     tx.run(
-        "CREATE (u:User:Customer {id: $id, name: $name, email: $email, password: $password, dob: $dob, active: $active, account_type: $account_type})",
-        id=data.get("id"),
+        "CREATE (u:User:Customer {user_id: $user_id, name: $name, email: $email, password: $password, dob: $dob, active: $active, account_type: $account_type})",
+        user_id=data.get("user_id"),
         name=data.get("name"),
         email=data.get("email"),
         password=data.get("password"),
@@ -432,8 +433,8 @@ def add_admin():
 
 def _add_admin(tx, data):
     tx.run(
-        "CREATE (a:User:Admin {id: $id, name: $name, email: $email, password: $password, dob: $dob, active: $active})",
-        id=data.get("id"),
+        "CREATE (a:User:Admin {user_id: $user_id, name: $name, email: $email, password: $password, dob: $dob, active: $active})",
+        user_id=data.get("user_id"),
         name=data.get("name"),
         email=data.get("email"),
         password=data.get("password"),
@@ -452,8 +453,8 @@ def add_movie():
 
 def _add_movie(tx, data):
     tx.run(
-        "CREATE (m:Content:Movie {id: $id, title: $title, release_date: $release_date, genre: $genre, duration: $duration, image: $image})",
-        id=data.get("id"),
+        "CREATE (m:Content:Movie {content_id: $content_id, title: $title, release_date: $release_date, genre: $genre, duration: $duration, image: $image})",
+        content_id=data.get("content_id"),
         title=data.get("title"),
         release_date=data.get("release_date"),
         genre=data.get("genre"),
@@ -472,8 +473,8 @@ def add_series():
 
 def _add_series(tx, data):
     tx.run(
-        "CREATE (s:Content:Series {id: $id, title: $title, release_date: $release_date, genre: $genre, episode_duration: $episode_duration, total_episodes: $total_episodes})",
-        id=data.get("id"),
+        "CREATE (s:Content:Series {content_id: $content_id, title: $title, release_date: $release_date, genre: $genre, episode_duration: $episode_duration, total_episodes: $total_episodes})",
+        content_id=data.get("content_id"),
         title=data.get("title"),
         release_date=data.get("release_date"),
         genre=data.get("genre"),
@@ -626,13 +627,13 @@ def create_content_relation():
 
 def _create_content_relation(tx, data):
     query = """
-    MATCH (a:Admin {id: $admin_id})
-    MATCH (c:Content {id: $content_id})
+    MATCH (a:Admin {user_id: $admin_id})
+    MATCH (c:Content {content_id: $content_id})
     CREATE (a)-[r:CREATED {fecha_de_adicion: $fecha_de_adicion, nota: $nota, backlog: $backlog}]->(c)
     """
     tx.run(
         query,
-        admin_id=data.get("admin_id"),
+        admin_id=data.get("user_id"),
         content_id=data.get("content_id"),
         fecha_de_adicion=data.get("fecha_de_adicion"),
         nota=data.get("nota"),
@@ -650,13 +651,13 @@ def edit_content_relation():
 
 def _edit_content_relation(tx, data):
     query = """
-    MATCH (a:Admin {id: $admin_id})
-    MATCH (c:Content {id: $content_id})
+    MATCH (a:Admin {user_id: $admin_id})
+    MATCH (c:Content {content_id: $content_id})
     CREATE (a)-[r:EDITED {fecha_de_adicion: $fecha_de_adicion, nota: $nota, backlog: $backlog}]->(c)
     """
     tx.run(
         query,
-        admin_id=data.get("admin_id"),
+        admin_id=data.get("user_id"),
         content_id=data.get("content_id"),
         fecha_de_adicion=data.get("fecha_de_adicion"),
         nota=data.get("nota"),
@@ -674,7 +675,7 @@ def _get_user_by_email(tx, email):
 
 
 def _get_user_by_id(tx, id):
-    query = "MATCH (u:User) WHERE u.id = $id RETURN u"
+    query = "MATCH (u:User) WHERE u.user_id = $id RETURN u"
     result = tx.run(query, id=id)
     return result.single()
 
@@ -682,7 +683,7 @@ def _get_user_by_id(tx, id):
 def _get_content_by_id(tx, content_id):
     result = tx.run(
         """
-        MATCH (c) WHERE c.id = $content_id RETURN c
+        MATCH (c:Content) WHERE c.content_id = $content_id RETURN c
         """,
         content_id=content_id
     )
@@ -692,7 +693,7 @@ def _get_content_by_id(tx, content_id):
 def _update_movie(tx, movie_data):
     tx.run(
         """
-        MATCH (m:Movie {id: $id})
+        MATCH (m:Movie {content_id: $content_id})
         SET m.title = $title, m.release_date = $release_date, m.genre = $genre, m.duration = $duration, m.image = $image
         """,
         **movie_data
@@ -702,7 +703,7 @@ def _update_movie(tx, movie_data):
 def _update_series(tx, series_data):
     tx.run(
         """
-        MATCH (s:Series {id: $id})
+        MATCH (s:Series {content_id: $content_id})
         SET s.title = $title, s.release_date = $release_date, s.genre = $genre, s.episode_duration = $episode_duration, s.total_episodes = $total_episodes
         """,
         **series_data
@@ -712,7 +713,7 @@ def _update_series(tx, series_data):
 def _delete_content(tx, content_id):
     tx.run(
         """
-        MATCH (c) WHERE c.id = $content_id DELETE c
+        MATCH (c) WHERE c.content_id = $content_id DELETE c
         """,
         content_id=content_id
     )
