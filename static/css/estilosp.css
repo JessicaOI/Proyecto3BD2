@@ -401,3 +401,29 @@ header nav a.activo {
 	width: 100%;
 	text-align: center;
 }
+
+.tabla_contenido {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 20px 0;
+  }
+  
+.tabla_contenido th,
+.tabla_contenido td {
+	padding: 8px;
+	text-align: left;
+}
+
+.tabla_contenido th {
+	border: 1px solid #fff;
+}
+
+.tabla_contenido td {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	border: 1px solid #fff;
+	min-width: 100px;
+	max-width: 300px;
+}
+  

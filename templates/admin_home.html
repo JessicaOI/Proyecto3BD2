@@ -32,12 +32,12 @@
 						<a class="boton" href="{{ url_for('add_content') }}">Agregar Contenido</a>
 					</div>
 				</div>
-				<div class="cl-lg-12">
+				<div class="col-lg-12">
 					<div class="container">
 						<div class="row">
 							<div class="col-lg-12">
-								<h3>Contenido existente</h3>
-								<table>
+								<h4>Contenido existente</h4>
+								<table class="tabla_contenido">
 									<tr>
 										<th>Título</th>
 										<th>Fecha de lanzamiento</th>
@@ -47,15 +47,24 @@
 									</tr>
 									{% for content in contents %}
 									<tr>
-										<td>{{ content.title }} {{ content.id }}</td>
+										<td>{{ content.title }}</td>
 										<td>{{ content.release_date }}</td>
-										<td>{{ content.genre }}</td>
+										
+										<td>
+											| 
+											{% for genres in content.genre %}
+											{{ genres }} |
+											{% endfor %}
+										</td>
+										
 										<td>{{ content.duration }}</td>
 										<td>
-											<a href="/edit_content/{{ content.id }}">Editar</a>
-											<form action="/delete_content/{{ content.id }}" method="POST" style="display: inline;">
-												<input type="submit" value="Eliminar">
-											</form>
+											<div class="row justify-content-center">
+												<a class="boton" href="/edit_content/{{ content.id }}">Editar</a>
+												<form action="/delete_content/{{ content.id }}" method="POST" style="display: inline;">
+													<input class="boton" type="submit" value="Eliminar">
+												</form>
+											</div>
 										</td>
 									</tr>
 									{% endfor %}
