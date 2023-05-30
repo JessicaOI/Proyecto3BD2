@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import session as session_flask
 from neo4j import GraphDatabase
 import random
 import os
@@ -35,6 +36,9 @@ def login():
             if user['u']["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
+            # Store the user ID in the session
+            session_flask['user_id'] = user['u']['id']
+
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
                 # Página de inicio para administradores
@@ -50,7 +54,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.clear()
+    session_flask.clear()
     return redirect(url_for('login'))
 
 
@@ -108,6 +112,9 @@ def login_admin():
             if user['u']["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
+            # Store the user ID in the session
+            session_flask['user_id'] = user['u']['id']
+
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
                 # Página de inicio para administradores
@@ -154,6 +161,152 @@ def register_admin():
     # El usuario se ha registrado correctamente
     # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
     return render_template("/login_admin.html")
+
+
+@app.route("/admin_home", methods=['GET'])
+def admin_home():
+    # Get the user ID from the session
+    user_id = session_flask.get('user_id')
+
+    with driver.session() as session:
+        # Query the user by ID
+        user = session.read_transaction(_get_user_by_id, user_id)
+
+    # Check if the user is logged in
+    if user is None:
+        return redirect(url_for('login_admin'))
+
+    return render_template("/admin_home.html", user=user)
+
+# Funciones de edición de contenido
+
+
+@app.route("/add_content", methods=["GET", "POST"])
+def add_content():
+    # Get the user ID from the session
+    user_id = session_flask.get('user_id')
+
+    with driver.session() as session:
+        # Query the user by ID
+        user = session.read_transaction(_get_user_by_id, user_id)
+
+    # Check if the user is logged in
+    if user is None:
+        return redirect(url_for('login_admin'))
+
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        content_type = request.form.get("content_type")
+        title = request.form.get("title")
+        release_date = request.form.get("release_date")
+        genre = request.form.get("genre")
+        duration = request.form.get("duration")
+        image = request.form.get("image")
+
+        genre_list = genre.split(",")
+
+        if content_type == "movie":
+            # Variables necesarias para una película
+            id = random.randint(1, 10000000)
+
+            # Crear la nueva película en la base de datos
+            movie_data = {
+                "id": id,
+                "title": title,
+                "release_date": release_date,
+                "genre": genre_list,
+                "duration": duration,
+                "image": image
+            }
+            with driver.session() as session:
+                session.write_transaction(_add_movie, movie_data)
+
+        elif content_type == "series":
+            # Variables necesarias para una serie
+            id = random.randint(1, 10000000)
+            episode_duration = request.form.get("episode_duration")
+            total_episodes = request.form.get("total_episodes")
+
+            # Crear la nueva serie en la base de datos
+            series_data = {
+                "id": id,
+                "title": title,
+                "release_date": release_date,
+                "genre": genre_list,
+                "episode_duration": episode_duration,
+                "total_episodes": total_episodes
+            }
+            with driver.session() as session:
+                session.write_transaction(_add_series, series_data)
+
+    return render_template("/agregar_contenido.html", user=user)
+
+
+@app.route("/edit_content/<content_id>", methods=["GET", "POST"])
+def edit_content(content_id):
+    # Obtener el usuario actual de la sesión
+    user = session.get("user")
+    if not user or "admin" not in user["u"].labels:
+        return redirect(url_for("login_admin"))
+
+    # Obtener los detalles del contenido por su ID
+    with driver.session() as session:
+        content = session.read_transaction(_get_content_by_id, content_id)
+        if not content:
+            return jsonify({"error": "El contenido no existe"}), 404
+
+        if request.method == "POST":
+            # Actualizar los datos del contenido
+            content_type = request.form.get("content_type")
+            title = request.form.get("title")
+            release_date = request.form.get("release_date")
+            genre = request.form.get("genre")
+            duration = request.form.get("duration")
+            image = request.form.get("image")
+
+            if content_type == "movie":
+                # Actualizar la película en la base de datos
+                movie_data = {
+                    "id": content_id,
+                    "title": title,
+                    "release_date": release_date,
+                    "genre": genre,
+                    "duration": duration,
+                    "image": image
+                }
+                session.write_transaction(_update_movie, movie_data)
+
+            elif content_type == "series":
+                # Actualizar la serie en la base de datos
+                episode_duration = request.form.get("episode_duration")
+                total_episodes = request.form.get("total_episodes")
+                series_data = {
+                    "id": content_id,
+                    "title": title,
+                    "release_date": release_date,
+                    "genre": genre,
+                    "episode_duration": episode_duration,
+                    "total_episodes": total_episodes
+                }
+                session.write_transaction(_update_series, series_data)
+
+            return redirect(url_for("admin_dashboard"))
+
+    return render_template("edit_content.html", user=user, content=content)
+
+
+@app.route("/delete_content/<content_id>", methods=["POST"])
+def delete_content(content_id):
+    # Obtener el usuario actual de la sesión
+    user = session.get("user")
+    if not user or "admin" not in user["u"].labels:
+        return redirect(url_for("login_admin"))
+
+    # Eliminar el contenido de la base de datos
+    with driver.session() as session:
+        session.write_transaction(_delete_content, content_id)
+
+    return redirect(url_for("admin_dashboard"))
 
 
 @app.route("/add_user", methods=["POST"])
@@ -377,6 +530,51 @@ def _get_user_by_email(tx, email):
     query = "MATCH (u:User) WHERE u.email = $email RETURN u"
     result = tx.run(query, email=email)
     return result.single()
+
+
+def _get_user_by_id(tx, id):
+    query = "MATCH (u:User) WHERE u.id = $id RETURN u"
+    result = tx.run(query, id=id)
+    return result.single()
+
+
+def _get_content_by_id(tx, content_id):
+    result = tx.run(
+        """
+        MATCH (c) WHERE c.id = $content_id RETURN c
+        """,
+        content_id=content_id
+    )
+    return result.single()
+
+
+def _update_movie(tx, movie_data):
+    tx.run(
+        """
+        MATCH (m:Movie {id: $id})
+        SET m.title = $title, m.release_date = $release_date, m.genre = $genre, m.duration = $duration, m.image = $image
+        """,
+        **movie_data
+    )
+
+
+def _update_series(tx, series_data):
+    tx.run(
+        """
+        MATCH (s:Series {id: $id})
+        SET s.title = $title, s.release_date = $release_date, s.genre = $genre, s.episode_duration = $episode_duration, s.total_episodes = $total_episodes
+        """,
+        **series_data
+    )
+
+
+def _delete_content(tx, content_id):
+    tx.run(
+        """
+        MATCH (c) WHERE c.id = $content_id DELETE c
+        """,
+        content_id=content_id
+    )
 
 
 if __name__ == "__main__":

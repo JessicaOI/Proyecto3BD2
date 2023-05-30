@@ -10,8 +10,9 @@
 }
 
 body {
-	background: var(--fondo);
+	background: var(--fondo)!important;
 	font-family: 'Open Sans', sans-serif;
+	color: #FFF!important;
 }
 
 .contenedor {
@@ -45,6 +46,17 @@ header nav a {
 header nav a:hover,
 header nav a.activo {
 	color: #FFF;
+}
+
+.form_style{
+	padding: 25px;
+	border: 1px solid #fff;
+	margin: 20px 0;
+}
+
+.form_style input{
+	width: 100%;
+	padding: 5px;
 }
 
 /* ---- ----- ----- Pelicula Principal ----- ----- ----- */
@@ -98,6 +110,25 @@ header nav a.activo {
 
 .pelicula-principal .boton i {
 	margin-right: 1.25em;
+}
+
+.boton {
+	background: rgba(0,0,0, 0.5);
+	border: none;
+	border-radius: 0.31em;
+	padding: 0.93em 1.87em;
+	color: #fff;
+	margin-right: 1.25em;
+	cursor: pointer;
+	transition: .3s ease all;
+	font-size: 1.12em;
+	border: 1px solid #fff;
+}
+
+.boton:hover {
+	background: #fff;
+	color: #000;
+	text-decoration: none;
 }
 
 /* ---- ----- ----- Contenedor Titulo y Controles ----- ----- ----- */
