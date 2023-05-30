@@ -13,8 +13,7 @@
 		<div class="contenedor">
 			<h2 class="logotipo">NEWFLIX</h2>
 			<nav>
-				<a href="#" class="activo">Home</a>
-				<a href ="#" class="">Busqueda</a>
+				<a href="{{ url_for('admin_home') }}" class="activo">Home</a>
 				<a href="{{ url_for('logout') }}">Cerrar Sesion</a>
 			</nav>
 		</div>
@@ -28,16 +27,42 @@
 					<h1>Bienvenido: {{user.u.name}}</h1>
 				</div>
 				<div class="col-lg-12 my-4">
-					<h3>Acciones de Contenido:</h3>
+					<div class="d-flex-spaced">
+						<h3>Acciones de Contenido:</h3>
+						<a class="boton" href="{{ url_for('add_content') }}">Agregar Contenido</a>
+					</div>
 				</div>
-                <div class="col-lg-4 my-4">
-					<a class="boton" href="{{ url_for('add_content') }}">Agregar Contenido</a>
-				</div>
-				<div class="col-lg-4 my-4">
-					<a class="boton" href="{{ url_for('add_content') }}">Editar Contenido</a>
-				</div>
-				<div class="col-lg-4 my-4">
-					<a class="boton" href="{{ url_for('add_content') }}">Eliminar Contenido</a>
+				<div class="cl-lg-12">
+					<div class="container">
+						<div class="row">
+							<div class="col-lg-12">
+								<h3>Contenido existente</h3>
+								<table>
+									<tr>
+										<th>Título</th>
+										<th>Fecha de lanzamiento</th>
+										<th>Género</th>
+										<th>Duración</th>
+										<th>Acciones</th>
+									</tr>
+									{% for content in contents %}
+									<tr>
+										<td>{{ content.title }} {{ content.id }}</td>
+										<td>{{ content.release_date }}</td>
+										<td>{{ content.genre }}</td>
+										<td>{{ content.duration }}</td>
+										<td>
+											<a href="/edit_content/{{ content.id }}">Editar</a>
+											<form action="/delete_content/{{ content.id }}" method="POST" style="display: inline;">
+												<input type="submit" value="Eliminar">
+											</form>
+										</td>
+									</tr>
+									{% endfor %}
+								</table>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

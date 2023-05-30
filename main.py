@@ -36,13 +36,16 @@ def login():
             if user['u']["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
+             # Get all content from the database
+            contents = session.read_transaction(_get_all_content)
+
             # Store the user ID in the session
             session_flask['user_id'] = user['u']['id']
 
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
                 # Página de inicio para administradores
-                return render_template("admin_home.html", user=user)
+                return render_template("admin_home.html", user=user, contents=contents)
 
             # El usuario ha iniciado sesión correctamente
             # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
@@ -112,17 +115,20 @@ def login_admin():
             if user['u']["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
+             # Get all content from the database
+            contents = session.read_transaction(_get_all_content)
+
             # Store the user ID in the session
             session_flask['user_id'] = user['u']['id']
 
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
                 # Página de inicio para administradores
-                return render_template("admin_home.html", user=user)
+                return render_template("admin_home.html", user=user, contents=contents)
 
             # El usuario ha iniciado sesión correctamente
             # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
-            return render_template("/admin_home.html", user=user)
+            return render_template("/admin_home.html", user=user, contents=contents)
 
     # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
     return render_template("/login_admin.html")
@@ -172,11 +178,15 @@ def admin_home():
         # Query the user by ID
         user = session.read_transaction(_get_user_by_id, user_id)
 
-    # Check if the user is logged in
-    if user is None:
-        return redirect(url_for('login_admin'))
+        # Check if the user is logged in
+        if user is None:
+            return redirect(url_for('login_admin'))
 
-    return render_template("/admin_home.html", user=user)
+        # Get all content from the database
+        contents = session.read_transaction(_get_all_content)
+
+    return render_template("/admin_home.html", user=user, contents=contents)
+
 
 # Funciones de edición de contenido
 
@@ -282,55 +292,99 @@ def add_content():
 
 @app.route("/edit_content/<content_id>", methods=["GET", "POST"])
 def edit_content(content_id):
-    # Obtener el usuario actual de la sesión
-    user = session.get("user")
-    if not user or "admin" not in user["u"].labels:
-        return redirect(url_for("login_admin"))
+    # Get the user ID from the session
+    user_id = session_flask.get('user_id')
 
-    # Obtener los detalles del contenido por su ID
     with driver.session() as session:
+        # Query the user by ID
+        user = session.read_transaction(_get_user_by_id, user_id)
+
         content = session.read_transaction(_get_content_by_id, content_id)
-        if not content:
-            return jsonify({"error": "El contenido no existe"}), 404
 
-        if request.method == "POST":
-            # Actualizar los datos del contenido
-            content_type = request.form.get("content_type")
-            title = request.form.get("title")
-            release_date = request.form.get("release_date")
-            genre = request.form.get("genre")
-            duration = request.form.get("duration")
-            image = request.form.get("image")
+    # Check if the user is logged in
+    if user is None:
+        return redirect(url_for('login_admin'))
 
-            if content_type == "movie":
-                # Actualizar la película en la base de datos
-                movie_data = {
-                    "id": content_id,
-                    "title": title,
-                    "release_date": release_date,
-                    "genre": genre,
-                    "duration": int(duration),
-                    "image": image
-                }
+    if 'message' in session_flask:
+        flash(session_flask['message'])
+        session_flask.pop('message', None)
+
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        content_type = request.form.get("content_type")
+        title = request.form.get("title")
+        release_date = datetime.strptime(
+            request.form.get("release_date"), "%Y-%m-%d").date()
+        genre = request.form.get("genre")
+        duration = request.form.get("duration")
+        image = request.form.get("image")
+        nota = request.form.get("nota")
+
+        genre_list = genre.split(",")
+
+        if content_type == "movie":
+
+            # Crear la nueva película en la base de datos
+            movie_data = {
+                "id": content_id,
+                "title": title,
+                "release_date": release_date,
+                "genre": genre_list,
+                "duration": duration,
+                "image": image
+            }
+            with driver.session() as session:
                 session.write_transaction(_update_movie, movie_data)
 
-            elif content_type == "series":
-                # Actualizar la serie en la base de datos
-                episode_duration = request.form.get("episode_duration")
-                total_episodes = request.form.get("total_episodes")
-                series_data = {
-                    "id": content_id,
-                    "title": title,
-                    "release_date": release_date,
-                    "genre": genre,
-                    "episode_duration": int(episode_duration),
-                    "total_episodes": total_episodes
-                }
+            backlog = f"Backlog: Pelicula {title} creada por el usuario {user['u']['name']}"
+
+            # Crear relación entre el administrador y el contenido creado
+            relation_data = {
+                "admin_id": user_id,
+                "content_id": content_id,
+                "fecha_de_adicion": datetime.today().date(),  # Fecha actual
+                "nota": nota,  # Aquí puedes guardar una nota si es necesario
+                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+            }
+            with driver.session() as session:
+                session.write_transaction(
+                    _edit_content_relation, relation_data)
+
+            flash("Contenido editado con éxito")
+
+        elif content_type == "series":
+            episode_duration = request.form.get("episode_duration")
+            total_episodes = request.form.get("total_episodes")
+
+            # Crear la nueva serie en la base de datos
+            series_data = {
+                "id": content_id,
+                "title": title,
+                "release_date": release_date,
+                "genre": genre_list,
+                "episode_duration": episode_duration,
+                "total_episodes": total_episodes
+            }
+            with driver.session() as session:
                 session.write_transaction(_update_series, series_data)
 
-            return redirect(url_for("admin_dashboard"))
+            backlog = f"Backlog: Serie {title} creada por el usuario {user['u']['name']}"
 
-    return render_template("edit_content.html", user=user, content=content)
+            # Crear relación entre el administrador y el contenido creado
+            relation_data = {
+                "admin_id": user_id,
+                "content_id": content_id,
+                "fecha_de_adicion": datetime.today().date(),  # Fecha actual
+                "nota": nota,  # Aquí puedes guardar una nota si es necesario
+                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+            }
+            with driver.session() as session:
+                session.write_transaction(
+                    _edit_content_relation, relation_data)
+
+            flash("Contenido editado con éxito")
+
+    return render_template("/editar_contenido.html", user=user, content=content, content_id=content_id)
 
 
 @app.route("/delete_content/<content_id>", methods=["POST"])
@@ -586,6 +640,30 @@ def _create_content_relation(tx, data):
     )
 
 
+@app.route("/edit_content_relation", methods=["POST"])
+def edit_content_relation():
+    data = request.get_json()
+    with driver.session() as session:
+        session.write_transaction(_edit_content_relation, data)
+    return jsonify({"message": "Relation created successfully"}), 201
+
+
+def _edit_content_relation(tx, data):
+    query = """
+    MATCH (a:Admin {id: $admin_id})
+    MATCH (c:Content {id: $content_id})
+    CREATE (a)-[r:EDITED {fecha_de_adicion: $fecha_de_adicion, nota: $nota, backlog: $backlog}]->(c)
+    """
+    tx.run(
+        query,
+        admin_id=data.get("admin_id"),
+        content_id=data.get("content_id"),
+        fecha_de_adicion=data.get("fecha_de_adicion"),
+        nota=data.get("nota"),
+        backlog=data.get("backlog"),
+    )
+
+
 # Función para obtener un usuario por su correo electrónico
 
 
@@ -638,6 +716,11 @@ def _delete_content(tx, content_id):
         """,
         content_id=content_id
     )
+
+
+def _get_all_content(tx):
+    result = tx.run("MATCH (c:Content) RETURN c")
+    return [record['c'] for record in result]
 
 
 if __name__ == "__main__":
