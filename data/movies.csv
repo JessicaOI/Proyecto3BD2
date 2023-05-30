@@ -1,0 +1,31 @@
+id,title,release_date,genre,duration,image
+1,The Shawshank Redemption,10/14/1994,Drama,142,https://example.com/shawshank_redemption.jpg
+2,The Godfather,3/24/1972,Crime,175,https://example.com/godfather.jpg
+3,Pulp Fiction,9/10/1994,Crime,154,https://example.com/pulp_fiction.jpg
+4,The Dark Knight,7/18/2008,Action,152,https://example.com/dark_knight.jpg
+5,Schindler's List,12/15/1993,Biography,195,https://example.com/schindlers_list.jpg
+6,The Lord of the Rings: The Return of the King,12/17/2003,Adventure,201,https://example.com/lotr_return_of_the_king.jpg
+7,Fight Club,10/15/1999,Drama,139,https://example.com/fight_club.jpg
+8,Inception,7/16/2010,Action,148,https://example.com/inception.jpg
+9,Goodfellas,9/19/1990,Crime,146,https://example.com/goodfellas.jpg
+10,Forrest Gump,7/6/1994,Drama,142,https://example.com/forrest_gump.jpg
+11,Joker,10/4/2019,Crime,122,https://example.com/joker.jpg
+12,The Matrix,3/31/1999,Action,136,https://example.com/matrix.jpg
+13,The Green Mile,12/10/1999,Crime,189,https://example.com/green_mile.jpg
+14,The Silence of the Lambs,2/14/1991,Thriller,118,https://example.com/silence_of_the_lambs.jpg
+15,Seven,9/22/1995,Thriller,127,https://example.com/seven.jpg
+16,Gone with the Wind,12/15/1939,Drama,238,https://example.com/gone_with_the_wind.jpg
+17,The Godfather: Part II,12/20/1974,Crime,202,https://example.com/godfather_part_ii.jpg
+18,The Lion King,6/15/1994,Animation,89,https://example.com/lion_king.jpg
+19,Saving Private Ryan,7/24/1998,War,169,https://example.com/saving_private_ryan.jpg
+20,The Avengers,5/4/2012,Action,143,https://example.com/avengers.jpg
+21,Titanic,12/19/1997,Romance,194,https://example.com/titanic.jpg
+22,Avatar,12/18/2009,Action,162,https://example.com/avatar.jpg
+23,The Departed,10/6/2006,Crime,151,https://example.com/departed.jpg
+24,Interstellar,11/7/2014,Adventure,169,https://example.com/interstellar.jpg
+25,Whiplash,10/10/2014,Drama,107,https://example.com/whiplash.jpg
+26,The Prestige,10/20/2006,Drama,130,https://example.com/prestige.jpg
+27,The Pianist,12/25/2002,Biography,150,https://example.com/pianist.jpg
+28,Back to the Future,7/3/1985,Adventure,116,https://example.com/back_to_the_future.jpg
+29,American History X,10/30/1998,Drama,119,https://example.com/american_history_x.jpg
+30,The Dark Knight Rises,7/20/2012,Action,165,https://example.com/dark_knight_rises.jpg
