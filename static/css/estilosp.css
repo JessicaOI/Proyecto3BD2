@@ -59,6 +59,11 @@ header nav a.activo {
 	padding: 5px;
 }
 
+.d-flex-spaced{
+	display: flex;
+	justify-content: space-between;
+}
+
 /* ---- ----- ----- Pelicula Principal ----- ----- ----- */
 .pelicula-principal {
 	font-size: 16px;
@@ -384,4 +389,15 @@ header nav a.activo {
 	.peliculas-recomendadas2 .flecha-derecha2 {
 		display: none;
 	}
+}
+
+.messages{
+	list-style: none;
+}
+
+.messages li{
+	border: 1px solid #fff;
+	padding: 5px 10px;
+	width: 100%;
+	text-align: center;
 }

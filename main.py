@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask import session as session_flask
 from neo4j import GraphDatabase
 import random
@@ -194,6 +194,10 @@ def add_content():
     if user is None:
         return redirect(url_for('login_admin'))
 
+    if 'message' in session_flask:
+        flash(session_flask['message'])
+        session_flask.pop('message', None)
+
     if request.method == 'POST':
         # Obtener los datos del formulario
         content_type = request.form.get("content_type")
@@ -202,6 +206,7 @@ def add_content():
         genre = request.form.get("genre")
         duration = request.form.get("duration")
         image = request.form.get("image")
+        nota = request.form.get("nota")
 
         genre_list = genre.split(",")
 
@@ -221,6 +226,22 @@ def add_content():
             with driver.session() as session:
                 session.write_transaction(_add_movie, movie_data)
 
+            backlog = f"Backlog: Pelicula {title} creada por el usuario {user['u']['name']}"
+
+            # Crear relación entre el administrador y el contenido creado
+            relation_data = {
+                "admin_id": user_id,
+                "content_id": id,
+                "fecha_de_adicion": datetime.today().date(),  # Fecha actual
+                "nota": nota,  # Aquí puedes guardar una nota si es necesario
+                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+            }
+            with driver.session() as session:
+                session.write_transaction(
+                    _create_content_relation, relation_data)
+
+            flash("Contenido creado con éxito")
+
         elif content_type == "series":
             # Variables necesarias para una serie
             id = random.randint(1, 10000000)
@@ -238,6 +259,22 @@ def add_content():
             }
             with driver.session() as session:
                 session.write_transaction(_add_series, series_data)
+
+            backlog = f"Backlog: Serie {title} creada por el usuario {user['u']['name']}"
+
+            # Crear relación entre el administrador y el contenido creado
+            relation_data = {
+                "admin_id": user_id,
+                "content_id": id,
+                "fecha_de_adicion": datetime.today().date(),  # Fecha actual
+                "nota": nota,  # Aquí puedes guardar una nota si es necesario
+                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+            }
+            with driver.session() as session:
+                session.write_transaction(
+                    _create_content_relation, relation_data)
+
+            flash("Contenido creado con éxito")
 
     return render_template("/agregar_contenido.html", user=user)
 
@@ -522,6 +559,31 @@ def _create_directed_by_relation(tx, data):
         hiring_date=data.get("hiring_date"),
         salary=data.get("salary"),
     )
+
+
+@app.route("/create_content_relation", methods=["POST"])
+def create_content_relation():
+    data = request.get_json()
+    with driver.session() as session:
+        session.write_transaction(_create_content_relation, data)
+    return jsonify({"message": "Relation created successfully"}), 201
+
+
+def _create_content_relation(tx, data):
+    query = """
+    MATCH (a:Admin {id: $admin_id})
+    MATCH (c:Content {id: $content_id})
+    CREATE (a)-[r:CREATED {fecha_de_adicion: $fecha_de_adicion, nota: $nota, backlog: $backlog}]->(c)
+    """
+    tx.run(
+        query,
+        admin_id=data.get("admin_id"),
+        content_id=data.get("content_id"),
+        fecha_de_adicion=data.get("fecha_de_adicion"),
+        nota=data.get("nota"),
+        backlog=data.get("backlog"),
+    )
+
 
 # Función para obtener un usuario por su correo electrónico
 
