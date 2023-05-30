@@ -19,12 +19,6 @@ neo4j_password = "0VbP5DwbQ2y7YcwKoGKB3vX06a8VnZiwNZp62KXyj_0"
 driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
 
 
-@app.route('/logout')
-def logout():
-    session_flask.clear()
-    return redirect(url_for('login'))
-
-
 @app.route("/", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -43,7 +37,7 @@ def login():
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
             # Store the user ID in the session
-            session_flask['user_id'] = user['u']['user_id']
+            session_flask['user_id'] = user['u']['id']
 
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
@@ -58,6 +52,12 @@ def login():
     return render_template("/login.html")
 
 
+@app.route('/logout')
+def logout():
+    session_flask.clear()
+    return redirect(url_for('login'))
+
+
 @app.route("/register", methods=["POST"])
 def register():
     # Obtener los datos del formulario
@@ -69,7 +69,7 @@ def register():
     password = request.form.get("contrasena")
 
     # Variables necesarias
-    user_id = random.randint(1, 10000000)
+    id = random.randint(1, 10000000)
     cuenta_activa = True
 
     # Verificar si el usuario ya existe en la base de datos
@@ -80,7 +80,7 @@ def register():
 
         # Crear el nuevo usuario en la base de datos
         user_data = {
-            "user_id": user_id,
+            "id": id,
             "name": name,
             "email": email,
             "password": password,
@@ -113,7 +113,7 @@ def login_admin():
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
             # Store the user ID in the session
-            session_flask['user_id'] = user['u']['user_id']
+            session_flask['user_id'] = user['u']['id']
 
             # Verificar si es un usuario administrador
             if "admin" in user['u'].labels:
@@ -138,7 +138,7 @@ def register_admin():
     password = request.form.get("contrasena")
 
     # Variables necesarias
-    user_id = random.randint(1, 10000000)
+    id = random.randint(1, 10000000)
     cuenta_activa = True
 
     # Verificar si el usuario ya existe en la base de datos
@@ -149,7 +149,7 @@ def register_admin():
 
         # Crear el nuevo usuario en la base de datos
         admin_data = {
-            "user_id": user_id,
+            "id": id,
             "name": name,
             "email": email,
             "password": password,
@@ -215,11 +215,11 @@ def add_content():
 
         if content_type == "movie":
             # Variables necesarias para una película
-            content_id = random.randint(1, 10000000)
+            id = random.randint(1, 10000000)
 
             # Crear la nueva película en la base de datos
             movie_data = {
-                "content_id": content_id,
+                "id": id,
                 "title": title,
                 "release_date": release_date,
                 "genre": genre_list,
@@ -234,7 +234,7 @@ def add_content():
             # Crear relación entre el administrador y el contenido creado
             relation_data = {
                 "admin_id": user_id,
-                "content_id": content_id,
+                "content_id": id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
                 "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
@@ -247,13 +247,13 @@ def add_content():
 
         elif content_type == "series":
             # Variables necesarias para una serie
-            content_id = random.randint(1, 10000000)
+            id = random.randint(1, 10000000)
             episode_duration = request.form.get("episode_duration")
             total_episodes = request.form.get("total_episodes")
 
             # Crear la nueva serie en la base de datos
             series_data = {
-                "content_id": content_id,
+                "id": id,
                 "title": title,
                 "release_date": release_date,
                 "genre": genre_list,
@@ -268,7 +268,7 @@ def add_content():
             # Crear relación entre el administrador y el contenido creado
             relation_data = {
                 "admin_id": user_id,
-                "content_id": content_id,
+                "content_id": id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
                 "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
@@ -279,13 +279,102 @@ def add_content():
 
             flash("Contenido creado con éxito")
 
-    return render_template("/agregar_contenido.html")
+    return render_template("/agregar_contenido.html", user=user)
 
 
 @app.route("/edit_content/<content_id>", methods=["GET", "POST"])
 def edit_content(content_id):
 
-    return render_template("/editar_contenido.html", content_id=content_id)
+    with driver.session() as session:
+        # Query the user by ID
+        user = session.read_transaction(_get_user_by_id, user_id)
+
+        content = session.read_transaction(_get_content_by_id, content_id)
+
+    # Check if the user is logged in
+    if user is None:
+        return redirect(url_for('login_admin'))
+
+    if 'message' in session_flask:
+        flash(session_flask['message'])
+        session_flask.pop('message', None)
+
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        content_type = request.form.get("content_type")
+        title = request.form.get("title")
+        release_date = datetime.strptime(
+            request.form.get("release_date"), "%Y-%m-%d").date()
+        genre = request.form.get("genre")
+        duration = request.form.get("duration")
+        image = request.form.get("image")
+        nota = request.form.get("nota")
+
+        genre_list = genre.split(",")
+
+        if content_type == "movie":
+
+            # Crear la nueva película en la base de datos
+            movie_data = {
+                "id": content_id,
+                "title": title,
+                "release_date": release_date,
+                "genre": genre_list,
+                "duration": duration,
+                "image": image
+            }
+            with driver.session() as session:
+                session.write_transaction(_update_movie, movie_data)
+
+            backlog = f"Backlog: Pelicula {title} creada por el usuario {user['u']['name']}"
+
+            # Crear relación entre el administrador y el contenido creado
+            relation_data = {
+                "admin_id": user_id,
+                "content_id": content_id,
+                "fecha_de_adicion": datetime.today().date(),  # Fecha actual
+                "nota": nota,  # Aquí puedes guardar una nota si es necesario
+                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+            }
+            with driver.session() as session:
+                session.write_transaction(
+                    _edit_content_relation, relation_data)
+
+            flash("Contenido editado con éxito")
+
+        elif content_type == "series":
+            episode_duration = request.form.get("episode_duration")
+            total_episodes = request.form.get("total_episodes")
+
+            # Crear la nueva serie en la base de datos
+            series_data = {
+                "id": content_id,
+                "title": title,
+                "release_date": release_date,
+                "genre": genre_list,
+                "episode_duration": episode_duration,
+                "total_episodes": total_episodes
+            }
+            with driver.session() as session:
+                session.write_transaction(_update_series, series_data)
+
+            backlog = f"Backlog: Serie {title} creada por el usuario {user['u']['name']}"
+
+            # Crear relación entre el administrador y el contenido creado
+            relation_data = {
+                "admin_id": user_id,
+                "content_id": content_id,
+                "fecha_de_adicion": datetime.today().date(),  # Fecha actual
+                "nota": nota,  # Aquí puedes guardar una nota si es necesario
+                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+            }
+            with driver.session() as session:
+                session.write_transaction(
+                    _edit_content_relation, relation_data)
+
+            flash("Contenido editado con éxito")
+
+    return render_template("/editar_contenido.html", user=user, content=content, content_id=content_id)
 
 
 @app.route("/delete_content/<content_id>", methods=["POST"])
@@ -312,8 +401,8 @@ def add_user():
 
 def _add_user(tx, data):
     tx.run(
-        "CREATE (u:User:Customer {user_id: $user_id, name: $name, email: $email, password: $password, dob: $dob, active: $active, account_type: $account_type})",
-        user_id=data.get("user_id"),
+        "CREATE (u:User:Customer {id: $id, name: $name, email: $email, password: $password, dob: $dob, active: $active, account_type: $account_type})",
+        id=data.get("id"),
         name=data.get("name"),
         email=data.get("email"),
         password=data.get("password"),
@@ -333,8 +422,8 @@ def add_admin():
 
 def _add_admin(tx, data):
     tx.run(
-        "CREATE (a:User:Admin {user_id: $user_id, name: $name, email: $email, password: $password, dob: $dob, active: $active})",
-        user_id=data.get("user_id"),
+        "CREATE (a:User:Admin {id: $id, name: $name, email: $email, password: $password, dob: $dob, active: $active})",
+        id=data.get("id"),
         name=data.get("name"),
         email=data.get("email"),
         password=data.get("password"),
@@ -353,8 +442,8 @@ def add_movie():
 
 def _add_movie(tx, data):
     tx.run(
-        "CREATE (m:Content:Movie {content_id: $content_id, title: $title, release_date: $release_date, genre: $genre, duration: $duration, image: $image})",
-        content_id=data.get("content_id"),
+        "CREATE (m:Content:Movie {id: $id, title: $title, release_date: $release_date, genre: $genre, duration: $duration, image: $image})",
+        id=data.get("id"),
         title=data.get("title"),
         release_date=data.get("release_date"),
         genre=data.get("genre"),
@@ -373,8 +462,8 @@ def add_series():
 
 def _add_series(tx, data):
     tx.run(
-        "CREATE (s:Content:Series {content_id: $content_id, title: $title, release_date: $release_date, genre: $genre, episode_duration: $episode_duration, total_episodes: $total_episodes})",
-        content_id=data.get("content_id"),
+        "CREATE (s:Content:Series {id: $id, title: $title, release_date: $release_date, genre: $genre, episode_duration: $episode_duration, total_episodes: $total_episodes})",
+        id=data.get("id"),
         title=data.get("title"),
         release_date=data.get("release_date"),
         genre=data.get("genre"),
@@ -527,13 +616,13 @@ def create_content_relation():
 
 def _create_content_relation(tx, data):
     query = """
-    MATCH (a:Admin {user_id: $admin_id})
-    MATCH (c:Content {content_id: $content_id})
+    MATCH (a:Admin {id: $admin_id})
+    MATCH (c:Content {id: $content_id})
     CREATE (a)-[r:CREATED {fecha_de_adicion: $fecha_de_adicion, nota: $nota, backlog: $backlog}]->(c)
     """
     tx.run(
         query,
-        admin_id=data.get("user_id"),
+        admin_id=data.get("admin_id"),
         content_id=data.get("content_id"),
         fecha_de_adicion=data.get("fecha_de_adicion"),
         nota=data.get("nota"),
@@ -551,13 +640,13 @@ def edit_content_relation():
 
 def _edit_content_relation(tx, data):
     query = """
-    MATCH (a:Admin {user_id: $admin_id})
-    MATCH (c:Content {content_id: $content_id})
+    MATCH (a:Admin {id: $admin_id})
+    MATCH (c:Content {id: $content_id})
     CREATE (a)-[r:EDITED {fecha_de_adicion: $fecha_de_adicion, nota: $nota, backlog: $backlog}]->(c)
     """
     tx.run(
         query,
-        admin_id=data.get("user_id"),
+        admin_id=data.get("admin_id"),
         content_id=data.get("content_id"),
         fecha_de_adicion=data.get("fecha_de_adicion"),
         nota=data.get("nota"),
@@ -575,7 +664,7 @@ def _get_user_by_email(tx, email):
 
 
 def _get_user_by_id(tx, id):
-    query = "MATCH (u:User) WHERE u.user_id = $id RETURN u"
+    query = "MATCH (u:User) WHERE u.id = $id RETURN u"
     result = tx.run(query, id=id)
     return result.single()
 
@@ -583,7 +672,7 @@ def _get_user_by_id(tx, id):
 def _get_content_by_id(tx, id):
     result = tx.run(
         """
-        MATCH (c:Content) WHERE c.id = $id RETURN c
+        MATCH (c) WHERE c.id = $content_id RETURN c
         """,
         id=id
     )
@@ -593,7 +682,7 @@ def _get_content_by_id(tx, id):
 def _update_movie(tx, movie_data):
     tx.run(
         """
-        MATCH (m:Movie {content_id: $content_id})
+        MATCH (m:Movie {id: $id})
         SET m.title = $title, m.release_date = $release_date, m.genre = $genre, m.duration = $duration, m.image = $image
         """,
         **movie_data
@@ -603,7 +692,7 @@ def _update_movie(tx, movie_data):
 def _update_series(tx, series_data):
     tx.run(
         """
-        MATCH (s:Series {content_id: $content_id})
+        MATCH (s:Series {id: $id})
         SET s.title = $title, s.release_date = $release_date, s.genre = $genre, s.episode_duration = $episode_duration, s.total_episodes = $total_episodes
         """,
         **series_data
@@ -613,7 +702,7 @@ def _update_series(tx, series_data):
 def _delete_content(tx, content_id):
     tx.run(
         """
-        MATCH (c) WHERE c.content_id = $content_id DELETE c
+        MATCH (c) WHERE c.id = $content_id DELETE c
         """,
         content_id=content_id
     )
