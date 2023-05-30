@@ -298,9 +298,6 @@ def edit_content(content_id):
     with driver.session() as session:
         # Query the user by ID
         user = session.read_transaction(_get_user_by_id, user_id)
-        print(user)
-        content = session.read_transaction(_get_content_by_id, content_id)
-        print(content)
 
     # Check if the user is logged in
     if user is None:
@@ -385,7 +382,7 @@ def edit_content(content_id):
 
             flash("Contenido editado con éxito")
 
-    return render_template("/editar_contenido.html", content=content, content_id=content_id)
+    return render_template("/editar_contenido.html", content_id=content_id)
 
 
 @app.route("/delete_content/<content_id>", methods=["POST"])
@@ -680,12 +677,12 @@ def _get_user_by_id(tx, id):
     return result.single()
 
 
-def _get_content_by_id(tx, content_id):
+def _get_content_by_id(tx, id):
     result = tx.run(
         """
-        MATCH (c:Content) WHERE c.content_id = $content_id RETURN c
+        MATCH (c:Content) WHERE c.id = $id RETURN c
         """,
-        content_id=content_id
+        id=id
     )
     return result.single()
 
