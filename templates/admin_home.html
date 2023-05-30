@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Bienvenido a la página de inicio del Administrador</h1>
+
+    <h2>Información del usuario</h2>
+    <p>Nombre: {{ user.u.name }}</p>
+    <p>Email: {{ user.u.email }}</p>
+
+    <h2>Acciones</h2>
+    <ul>
+        <li><a href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+    </ul>
+</body>
+</html>

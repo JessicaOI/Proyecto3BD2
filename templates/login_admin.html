@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login para Administradores</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 
@@ -31,22 +31,20 @@
             <!--Formulario de Login y registro-->
             <div class="contenedor__login-register">
                 <!--Login-->
-                <form action="{{ url_for('login') }}" class="formulario__login" method="POST">
-                    <h2>Iniciar Sesión</h2>
-                    <a href="{{ url_for('login_admin') }}">Iniciar Sesión como Administrador</a>
+                <form action="{{ url_for('login_admin') }}" class="formulario__login" method="POST">
+                    <h2>Iniciar Sesión como Admin</h2>
+                    <a href="{{ url_for('login') }}">Iniciar Sesión como Usuario</a>
                     <input type="text" placeholder="Correo Electrónico" name="correo">
                     <input type="password" placeholder="Contraseña" name="contra">
                     <input type="submit" class="bt" value="Entrar">
-                   
                 </form>
 
                 <!--Register-->
-                <form action="{{ url_for('register') }}" class="formulario__register" method="POST">
-                    <h2>Regístrarse</h2>
+                <form action="{{ url_for('register_admin') }}" class="formulario__register" method="POST">
+                    <h2>Regístrarse como Admin</h2>
                     <input type="text" placeholder="Nombre completo" name="nombre_completo" required> 
                     <input type="text" placeholder="Correo Electrónico" name="correo" required>
                     <input type="date" placeholder="Fecha de Nacimiento" name="fecha_nac" required>
-                    <input type="text" placeholder="Tipo de Cuenta (Normal o Premium)" name="tipo_cuenta" required>
                     <input type="password" placeholder="Contraseña" name="contrasena" required>
                     <input type="submit" class="bt" value="Registrarse">
                 </form>

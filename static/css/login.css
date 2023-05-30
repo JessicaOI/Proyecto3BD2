@@ -78,6 +78,24 @@ main{
     color: #46A2FD;
 }
 
+a{
+    padding: 5px 10px;
+    border: 2px solid #fff;
+    font-size: 12px;
+    background: #46A2FD;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    outline: none;
+    transition: all 300ms;
+}
+
+a:hover{
+    background: #fff;
+    color: #46A2FD;
+    border: 1px solid #46A2FD
+}
+
 /*Formularios*/
 
 .contenedor__login-register{

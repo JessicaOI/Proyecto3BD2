@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 from neo4j import GraphDatabase
 import random
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -34,6 +35,11 @@ def login():
             if user['u']["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
+            # Verificar si es un usuario administrador
+            if "admin" in user['u'].labels:
+                # Página de inicio para administradores
+                return render_template("admin_home.html", user=user)
+
             # El usuario ha iniciado sesión correctamente
             # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
             return render_template("/home.html", user=user)
@@ -53,7 +59,8 @@ def register():
     # Obtener los datos del formulario
     name = request.form.get("nombre_completo")
     email = request.form.get("correo")
-    fecha_nac = request.form.get("fecha_nac")
+    fecha_nac = datetime.strptime(
+        request.form.get("fecha_nac"), "%Y-%m-%d").date()
     tipo_cuenta = request.form.get("tipo_cuenta")
     password = request.form.get("contrasena")
 
@@ -82,6 +89,71 @@ def register():
     # El usuario se ha registrado correctamente
     # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
     return render_template("/login.html")
+
+
+@app.route("/login_admin", methods=['GET', 'POST'])
+def login_admin():
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        email = request.form.get("correo")
+        password = request.form.get("contra")
+
+        # Verificar si el usuario existe en la base de datos
+        with driver.session() as session:
+            user = session.read_transaction(_get_user_by_email, email)
+            if user is None:
+                return jsonify({"error": "El usuario no existe"}), 404
+
+            # Verificar si la contraseña coincide
+            if user['u']["password"] != password:
+                return jsonify({"error": "La contraseña es incorrecta"}), 401
+
+            # Verificar si es un usuario administrador
+            if "admin" in user['u'].labels:
+                # Página de inicio para administradores
+                return render_template("admin_home.html", user=user)
+
+            # El usuario ha iniciado sesión correctamente
+            # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
+            return render_template("/admin_home.html", user=user)
+
+    # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
+    return render_template("/login_admin.html")
+
+
+@app.route("/register_admin", methods=["POST"])
+def register_admin():
+    # Obtener los datos del formulario
+    name = request.form.get("nombre_completo")
+    email = request.form.get("correo")
+    fecha_nac = datetime.strptime(
+        request.form.get("fecha_nac"), "%Y-%m-%d").date()
+    password = request.form.get("contrasena")
+
+    # Variables necesarias
+    id = random.randint(1, 10000000)
+    cuenta_activa = True
+
+    # Verificar si el usuario ya existe en la base de datos
+    with driver.session() as session:
+        user = session.read_transaction(_get_user_by_email, email)
+        if user:
+            return jsonify({"error": "El usuario ya existe"}), 409
+
+        # Crear el nuevo usuario en la base de datos
+        admin_data = {
+            "id": id,
+            "name": name,
+            "email": email,
+            "password": password,
+            "dob": fecha_nac,
+            "active": cuenta_activa,
+        }
+        session.write_transaction(_add_admin, admin_data)
+
+    # El usuario se ha registrado correctamente
+    # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
+    return render_template("/login_admin.html")
 
 
 @app.route("/add_user", methods=["POST"])
