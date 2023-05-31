@@ -61,13 +61,10 @@
                                                     <td>{{ user.id }}</td>
                                                     <td>{{ user.name }}</td>
                                                     <td>{{ user.email }}</td>
-                                                    <td style="width: 320px;">
-														<div class="row justify-content-center">
-															<a class="boton" href="/edit_content/{{ user.id }}">Editar</a>
-															<form action="/delete_user/{{ user.id }}" method="POST" style="display: inline;">
-																<input class="boton" type="submit" value="Eliminar">
-															</form>
-														</div>
+                                                    <td class="text-center">
+														<form action="/delete_user/{{ user.id }}" method="POST" style="display: inline;">
+															<input class="boton" type="submit" value="Eliminar">
+														</form>
 													</td>
                                                 </tr>
                                             {% endfor %}
