@@ -45,8 +45,8 @@ def login():
                 return render_template("admin_home.html", user=user)
 
             # El usuario ha iniciado sesión correctamente
-            # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
-            return render_template("/home.html", user=user)
+            # Redirigir a la página de películas
+            return redirect(url_for('movies'))
 
     # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
     return render_template("/login.html")
@@ -126,6 +126,7 @@ def login_admin():
 
     # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
     return render_template("/login_admin.html")
+
 
 
 @app.route("/register_admin", methods=["POST"])
@@ -399,6 +400,7 @@ def add_user():
     return jsonify({"message": "User created successfully"}), 201
 
 
+
 def _add_user(tx, data):
     tx.run(
         "CREATE (u:User:Customer {id: $id, name: $name, email: $email, password: $password, dob: $dob, active: $active, account_type: $account_type})",
@@ -418,6 +420,26 @@ def add_admin():
     with driver.session() as session:
         session.write_transaction(_add_admin, data)
     return jsonify({"message": "Admin created successfully"}), 201
+
+def get_movies(tx):
+    result = tx.run("MATCH (m:Movie) RETURN m.title as title, m.image as image")
+    records = [record for record in result]
+    return records
+
+def get_series(tx):
+    result = tx.run("MATCH (s:Series) RETURN s.title as title, s.image as image")
+    records = [record for record in result]
+    # print(records)
+    return records
+
+
+@app.route('/movies')
+def movies():
+    with driver.session() as session:
+        movie_list = session.read_transaction(get_movies)
+        series_list = session.read_transaction(get_series)
+    return render_template('home.html', movies=movie_list, series=series_list)
+
 
 
 def _add_admin(tx, data):

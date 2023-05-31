@@ -40,79 +40,18 @@
 
 			<div class="contenedor-principal">
 				<button role="button" id="flecha-izquierda" class="flecha-izquierda"><i class="fas fa-angle-left"></i></button>
-
+			
 				<div class="contenedor-carousel">
 					<div class="carousel">
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=Wqtlf_A4cOc&t=33s&ab_channel=AD_edits"><img src="https://www.sopitas.com/wp-content/uploads/2013/06/mu2.jpg"></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=LYS2O1nl9iM"><img src="{{ url_for('static', filename='images/2.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=wTi8yLyHeb8"><img src="https://i.ytimg.com/vi/iW-QBcjakrc/maxresdefault.jpg" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=RZ4OSz_qwdg"><img src="https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/FB5AEC9D5C29364905AC44EBEB20EF3856AB1F33186B002455237B8F99D0E1CD/scale?width=1200&aspectRatio=1.78&format=jpeg" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=YyoKXfBQgXw"><img src="{{ url_for('static', filename='images/5.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=FUP3P9_mqvA"><img src="{{ url_for('static', filename='images/6.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=KREBGtEeW9U"><img src="https://i0.wp.com/www.filmylibrary.com/wp-content/uploads/2021/05/doctor-strange-in-the-multiverse-of-madness-marvel-cinematic-universe-scaled.jpg?fit=2560%2C1440&ssl=1" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=upGoAejd7LM"><img src="https://es.web.img3.acsta.net/r_1280_720/newsv7/20/12/15/09/38/2411268.jpg" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=-AwLMRgcEoA"><img src="https://images-na.ssl-images-amazon.com/images/S/pv-target-images/fe5fb13cf94c30b88dbe92c858e6da9727a7cc8b689da2c807353796b54247d3._UR1920,1080_RI_.jpg" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=t3DpuQrBivU"><img src="https://studiosol-a.akamaihd.net/uploadfile/letras/playlists/6/4/3/c/643c06d47cb949539e4ffa125c0057fe.jpg" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/1.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/2.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/3.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/4.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/5.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/6.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/7.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/3.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/2.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/4.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/6.png') }}" alt=""></a>
-						</div>
+						{% for movie in movies %}
+							<div class="pelicula">
+								<img src="{{ movie.image }}" alt="{{ movie.title }}">
+							</div>
+						{% endfor %}
 					</div>
 				</div>
-                <button role="button" id="flecha-derecha" class="flecha-derecha"><i class="fas fa-angle-right"></i></button>
-
-
-            </div>
-        </div>
+				<button role="button" id="flecha-derecha" class="flecha-derecha"><i class="fas fa-angle-right"></i></button>
+			</div>
 
         <div class="peliculas-recomendadas2 contenedor">
             <div class="contenedor-titulo-controles2">
@@ -124,69 +63,11 @@
     
                 <div class="contenedor-carousel2">
                     <div class="carousel2">
-                        <div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/1.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/5.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/6.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/7.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/3.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/2.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/4.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/6.png') }}" alt=""></a>
-						</div>
-                        <div class="pelicula">
-                            <a href="#"><img src="{{ url_for('static', filename='images/1.png') }}" alt=""></a>
-                        </div>
-                        <div class="pelicula">
-                            <a href="#"><img src="{{ url_for('static', filename='images/2.png') }}" alt=""></a>
-                        </div>
-                        <div class="pelicula">
-                            <a href="#"><img src="{{ url_for('static', filename='images/3.png') }}" alt=""></a>
-                        </div>
-                        <div class="pelicula">
-                            <a href="#"><img src="{{ url_for('static', filename='images/4.png') }}" alt=""></a>
-                        </div>
-                        <div class="pelicula">
-                            <a href="#"><img src="{{ url_for('static', filename='images/5.png') }}" alt=""></a>
-                        </div>
-                        <div class="pelicula">
-                            <a href="#"><img src="{{ url_for('static', filename='images/6.png') }}" alt=""></a>
-                        </div>
-                        <div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/1.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/5.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="#"><img src="{{ url_for('static', filename='images/6.png') }}" alt=""></a>
-						</div>
-                        <div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=Wqtlf_A4cOc&t=33s&ab_channel=AD_edits"><img src="https://www.sopitas.com/wp-content/uploads/2013/06/mu2.jpg"></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=LYS2O1nl9iM"><img src="{{ url_for('static', filename='images/2.png') }}" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=wTi8yLyHeb8"><img src="https://i.ytimg.com/vi/iW-QBcjakrc/maxresdefault.jpg" alt=""></a>
-						</div>
-						<div class="pelicula">
-							<a href="https://www.youtube.com/watch?v=RZ4OSz_qwdg"><img src="https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/FB5AEC9D5C29364905AC44EBEB20EF3856AB1F33186B002455237B8F99D0E1CD/scale?width=1200&aspectRatio=1.78&format=jpeg" alt=""></a>
-						</div>
+                        {% for serie in series %}
+							<div class="pelicula">
+								<img src="{{ serie.image }}" alt="{{ serie.title }}">
+							</div>
+						{% endfor %}
                     </div>   
                 </div>
 			    <button role="button" id="flecha-derecha2" class="flecha-derecha2"><i class="fas fa-angle-right"></i></button>
