@@ -906,6 +906,52 @@ def _edit_content_relation(tx, data):
         backlog=data.get("backlog"),
     )
 
+def _add_favorite_movie(tx, user_id, movie_title):
+    query = """
+    MATCH (u:User),(m:Movie)
+    WHERE u.id = $user_id AND m.title = $movie_title
+    CREATE (u)-[r:FAVORITE]->(m)
+    RETURN r
+    """
+    result = tx.run(query, user_id=user_id, movie_title=movie_title)
+    return result.single()
+
+def _add_favorite_series(tx, user_id, series_title):
+    query = """
+    MATCH (u:User),(s:Series)
+    WHERE u.id = $user_id AND s.title = $series_title
+    CREATE (u)-[r:FAVORITE]->(s)
+    RETURN r
+    """
+    result = tx.run(query, user_id=user_id, series_title=series_title)
+    return result.single()
+
+
+@app.route('/add_favorite_movie', methods=['POST'])
+def add_favorite_movie():
+    # Obtenemos el id del usuario logueado de la sesión
+    user_id = int(user_id)
+    # Obtenemos el titulo de la película desde el body del request
+    movie_title = request.form.get('movie_title')
+
+    with driver.session() as session:
+        session.write_transaction(_add_favorite_movie, user_id, movie_title)
+
+    return jsonify({"message": "Movie added to favorites successfully"}), 200
+
+@app.route('/add_favorite_series', methods=['POST'])
+def add_favorite_series():
+    # Obtenemos el id del usuario logueado de la sesión
+    user_id = int(user_id)
+    # Obtenemos el titulo de la serie desde el body del request
+    series_title = request.form.get('series_title')
+
+    with driver.session() as session:
+        session.write_transaction(_add_favorite_series, user_id, series_title)
+
+    return jsonify({"message": "Series added to favorites successfully"}), 200
+
+
 
 # Función para obtener un usuario por su correo electrónico
 

@@ -46,8 +46,10 @@
 						{% for movie in movies %}
 							<div class="pelicula">
 								<img src="{{ movie.image }}" alt="{{ movie.title }}">
+								<button class="boton-favorito" onclick="toggleFavoriteMovie(this, '{{ movie.title }}')"><i class="fas fa-star"></i>Favorito</button>
 							</div>
 						{% endfor %}
+					
 					</div>
 				</div>
 				<button role="button" id="flecha-derecha" class="flecha-derecha"><i class="fas fa-angle-right"></i></button>
@@ -63,9 +65,10 @@
     
                 <div class="contenedor-carousel2">
                     <div class="carousel2">
-                        {% for serie in series %}
+						{% for serie in series %}
 							<div class="pelicula">
 								<img src="{{ serie.image }}" alt="{{ serie.title }}">
+								<button class="boton-favorito" onclick="toggleFavoriteSerie(this, '{{ serie.title }}')"><i class="fas fa-star"></i>Favorito</button>
 							</div>
 						{% endfor %}
                     </div>   
