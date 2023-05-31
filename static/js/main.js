@@ -120,3 +120,51 @@ peliculas2.forEach((pelicula) => {
 fila2.addEventListener('mouseleave', () => {
 	peliculas2.forEach(pelicula => pelicula.classList.remove('hover'));
 });
+
+function toggleFavoriteMovie(button1, title) {
+    button1.classList.toggle('favorito-activo');
+    let isFavorite = button1.classList.contains('favorito-activo');
+    
+    let url = '/add_favorite_movie';
+    let method = 'POST';
+
+    // Si no es favorito, cambiamos el url y el método para remover la película de los favoritos
+    if (!isFavorite) {
+        url = '/remove_favorite_movie';
+        method = 'DELETE';
+    }
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `movie_title=${title}`
+    }).then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
+}
+
+function toggleFavoriteSerie(button2, title) {
+    button2.classList.toggle('favorito-activo');
+    let isFavorite = button2.classList.contains('favorito-activo');
+    
+    let url = '/add_favorite_series';
+    let method = 'POST';
+
+    // Si no es favorito, cambiamos el url y el método para remover la serie de los favoritos
+    if (!isFavorite) {
+        url = '/remove_favorite_series';
+        method = 'DELETE';
+    }
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `series_title=${title}`
+    }).then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
+}

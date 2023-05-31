@@ -127,29 +127,30 @@
 						<div class="pelicula">
 							<img src="{{ movie.image }}" alt="{{ movie.title }}"
 								onclick="addToWatched('{{ movie.title }}')">
+								<button class="boton-favorito" onclick="toggleFavoriteMovie(this, '{{ movie.title }}')"><i class="fas fa-star"></i>Favorito</button>
 						</div>
 						{% endfor %}
+					
 					</div>
 				</div>
 				<button role="button" id="flecha-derecha" class="flecha-derecha"><i
 						class="fas fa-angle-right"></i></button>
 			</div>
 
-			<div class="peliculas-recomendadas2 contenedor">
-				<div class="contenedor-titulo-controles2">
-					<h3>Series</h3>
-					<div class="indicadores2"></div>
-				</div>
-				<div class="contenedor-principal2">
-					<button role="button" id="flecha-izquierda2" class="flecha-izquierda2"><i
-							class="fas fa-angle-left"></i></button>
-
-					<div class="contenedor-carousel2">
-						<div class="carousel2">
-							{% for serie in series %}
+        <div class="peliculas-recomendadas2 contenedor">
+            <div class="contenedor-titulo-controles2">
+                <h3>Series</h3>
+                <div class="indicadores2"></div>
+            </div>
+            <div class="contenedor-principal2">
+                <button role="button" id="flecha-izquierda2" class="flecha-izquierda2"><i class="fas fa-angle-left"></i></button>
+    
+                <div class="contenedor-carousel2">
+                    <div class="carousel2">
+						{% for serie in series %}
 							<div class="pelicula">
-								<img src="{{ serie.image }}" alt="{{ serie.title }}"
-									onclick="addToWatched('{{ serie.title }}')">
+								<img src="{{ serie.image }}" alt="{{ serie.title }}">
+								<button class="boton-favorito" onclick="toggleFavoriteSerie(this, '{{ serie.title }}')"><i class="fas fa-star"></i>Favorito</button>
 							</div>
 							{% endfor %}
 						</div>
