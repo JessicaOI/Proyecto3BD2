@@ -134,7 +134,6 @@ def login_admin():
     return render_template("/login_admin.html")
 
 
-
 @app.route("/register_admin", methods=["POST"])
 def register_admin():
     # Obtener los datos del formulario
@@ -638,7 +637,6 @@ def add_user():
     return jsonify({"message": "User created successfully"}), 201
 
 
-
 def _add_user(tx, data):
     tx.run(
         "CREATE (u:User:Customer {id: $id, name: $name, email: $email, password: $password, dob: $dob, active: $active, account_type: $account_type})",
@@ -659,13 +657,17 @@ def add_admin():
         session.write_transaction(_add_admin, data)
     return jsonify({"message": "Admin created successfully"}), 201
 
+
 def get_movies(tx):
-    result = tx.run("MATCH (m:Movie) RETURN m.title as title, m.image as image")
+    result = tx.run(
+        "MATCH (m:Movie) RETURN m.title as title, m.image as image")
     records = [record for record in result]
     return records
 
+
 def get_series(tx):
-    result = tx.run("MATCH (s:Series) RETURN s.title as title, s.image as image")
+    result = tx.run(
+        "MATCH (s:Series) RETURN s.title as title, s.image as image")
     records = [record for record in result]
     # print(records)
     return records
@@ -677,7 +679,6 @@ def movies():
         movie_list = session.read_transaction(get_movies)
         series_list = session.read_transaction(get_series)
     return render_template('home.html', movies=movie_list, series=series_list)
-
 
 
 def _add_admin(tx, data):
