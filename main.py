@@ -963,5 +963,37 @@ def _get_all_users(tx):
     return [dict(record["u"]._properties) for record in result]
 
 
+# Busqueda
+@app.route('/buscar_contenido', methods=['GET', 'POST'])
+def buscar_contenido():
+    if request.method == 'POST':
+        userInput = request.form['user_input']
+
+        with driver.session() as session:
+            result = session.run("""
+            WITH $userInput AS userInput
+            MATCH (c:Content)
+            WHERE toLower(c.title) CONTAINS toLower(userInput)
+            WITH c.title AS contenidoTitulo
+            LIMIT 1
+
+            MATCH (c1:Content {title: contenidoTitulo})
+            OPTIONAL MATCH (c1)-[r:ACTUADO_POR|DIRIGIDO_POR|SECUELA]-(related)
+            RETURN c1.title AS nodoPrincipal, collect(DISTINCT related) AS nodosRelacionados, collect(DISTINCT r) AS relaciones
+            """, userInput=userInput)
+
+            record = result.single()
+
+            nodoPrincipal = record['nodoPrincipal']
+            nodosRelacionados = record['nodosRelacionados']
+            relaciones = record['relaciones']
+
+            data = list(zip(nodosRelacionados, relaciones))
+
+            return render_template('/busqueda.html', nodoPrincipal=nodoPrincipal, data=data)
+
+    return render_template('/busqueda.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)
