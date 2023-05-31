@@ -1123,9 +1123,9 @@ def _mark_content_watched(tx, user_id, content_id):
     print(user_id)
     print(content_id)
 
-    query = """
-    MATCH (u:User {id: $user_id}), (m:Movie {title: $content_id})
-    MERGE (u)-[r:WATCHED {timestamp: timestamp()}]->(m)
+    query = query = """
+    MATCH (u:User {id: $user_id}), (c:Content {title: $content_id})
+    MERGE (u)-[r:WATCHED {timestamp: timestamp()}]->(c)
     """
     tx.run(query, user_id=user_id, content_id=content_id)
 
@@ -1134,6 +1134,9 @@ def _mark_content_watched(tx, user_id, content_id):
 def mark_watched():
     user_id = session.get("user_id")
     content_id = request.form.get("content_id")
+
+    print(user_id)
+    print(content_id)
 
     # print("USER ID", user_id)
     # print("CONTENT ID", content_id)
@@ -1149,17 +1152,17 @@ def mark_watched():
 
 def _get_watched_content(tx, user_id):
     query = """
-    MATCH (u:User {id: $user_id})-[r:WATCHED]->(m:Movie)
-    RETURN m
+    MATCH (u:User {id: $user_id})-[r:WATCHED]->(c:Content)
+    RETURN c
     """
     result = tx.run(query, user_id=user_id)
-    return [record["m"] for record in result]
+    return [record["c"] for record in result]
 
 
 def _get_recommendations(tx, user_id, genres):
     query = """
     MATCH (u:User {id: $user_id})
-    MATCH (m2:Movie) WHERE m2.genre IN $genres AND NOT EXISTS((u)-[:WATCHED]->(m2))
+    MATCH (m2:Content) WHERE m2.genre IN $genres AND NOT EXISTS((u)-[:WATCHED]->(m2))
     RETURN m2
     """
     result = tx.run(query, user_id=user_id, genres=genres)
@@ -1169,7 +1172,7 @@ def _get_recommendations(tx, user_id, genres):
 def generate_recommendations(user_id):
     with driver.session() as session:
         watched_content = session.read_transaction(_get_watched_content, user_id)
-        genres = set(tuple(movie["genre"]) for movie in watched_content)
+        genres = set(tuple(content["genre"]) for content in watched_content)
         recommendations = session.read_transaction(
             _get_recommendations, user_id, list(genres)
         )
