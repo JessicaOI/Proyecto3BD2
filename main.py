@@ -696,7 +696,7 @@ def movies():
 
         for movie in movie_list:
             is_fav = neo4j_session.read_transaction(is_favorite, user_id, movie["title"])
-            print(f"{movie['title']} is favorite: {is_fav}")
+            #print(f"{movie['title']} is favorite: {is_fav}")
             movie["is_favorite"] = is_fav
 
 

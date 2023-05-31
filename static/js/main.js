@@ -1,63 +1,75 @@
-const fila = document.querySelector('.contenedor-carousel');
+const fila = document.querySelectorAll('.contenedor-carousel');
 const peliculas = document.querySelectorAll('.pelicula');
 
-const flechaIzquierda = document.getElementById('flecha-izquierda');
-const flechaDerecha = document.getElementById('flecha-derecha');
+const flechaIzquierda = document.querySelectorAll('#flecha-izquierda');
+const flechaDerecha = document.querySelectorAll('#flecha-derecha');
 
-// ? ----- ----- Event Listener para la flecha derecha. ----- -----
-flechaDerecha.addEventListener('click', () => {
-	fila.scrollLeft += fila.offsetWidth;
-
-	const indicadorActivo = document.querySelector('.indicadores .activo');
-	if(indicadorActivo.nextSibling){
-		indicadorActivo.nextSibling.classList.add('activo');
-		indicadorActivo.classList.remove('activo');
-	}
+// Event Listener para la flecha derecha. 
+flechaDerecha.forEach((flecha, i) => {
+  flecha.addEventListener('click', () => {
+    fila[i].scrollLeft += fila[i].offsetWidth;
+  
+    const indicadorActivo = fila[i].querySelector('.indicadores .activo');
+    if(indicadorActivo.nextSibling){
+      indicadorActivo.nextSibling.classList.add('activo');
+      indicadorActivo.classList.remove('activo');
+    }
+  });
 });
 
-// ? ----- ----- Event Listener para la flecha izquierda. ----- -----
-flechaIzquierda.addEventListener('click', () => {
-	fila.scrollLeft -= fila.offsetWidth;
-
-	const indicadorActivo = document.querySelector('.indicadores .activo');
-	if(indicadorActivo.previousSibling){
-		indicadorActivo.previousSibling.classList.add('activo');
-		indicadorActivo.classList.remove('activo');
-	}
+// Event Listener para la flecha izquierda. 
+flechaIzquierda.forEach((flecha, i) => {
+  flecha.addEventListener('click', () => {
+    fila[i].scrollLeft -= fila[i].offsetWidth;
+  
+    const indicadorActivo = fila[i].querySelector('.indicadores .activo');
+    if(indicadorActivo.previousSibling){
+      indicadorActivo.previousSibling.classList.add('activo');
+      indicadorActivo.classList.remove('activo');
+    }
+  });
 });
 
-// ? ----- ----- Paginacion ----- -----
+// Paginacion 
 const numeroPaginas = Math.ceil(peliculas.length / 10);
 for(let i = 0; i < numeroPaginas; i++){
-	const indicador = document.createElement('button');
-
-	if(i === 0){
-		indicador.classList.add('activo');
-	}
-
-	document.querySelector('.indicadores').appendChild(indicador);
-	indicador.addEventListener('click', (e) => {
-		fila.scrollLeft = i * fila.offsetWidth;
-
-		document.querySelector('.indicadores .activo').classList.remove('activo');
-		e.target.classList.add('activo');
-	});
+  const indicador = document.createElement('button');
+  if(i === 0){
+    indicador.classList.add('activo');
+  }
+  
+  document.querySelectorAll('.indicadores').forEach(indicadorContainer => {
+    indicadorContainer.appendChild(indicador);
+  });
+  indicador.addEventListener('click', (e) => {
+    fila.forEach(contenedor => {
+      contenedor.scrollLeft = i * contenedor.offsetWidth;
+    });
+  
+    document.querySelectorAll('.indicadores .activo').forEach(indicadorActivo => {
+      indicadorActivo.classList.remove('activo');
+    });
+    e.target.classList.add('activo');
+  });
 }
 
-// ? ----- ----- Hover ----- -----
+// Hover 
 peliculas.forEach((pelicula) => {
-	pelicula.addEventListener('mouseenter', (e) => {
-		const elemento = e.currentTarget;
-		setTimeout(() => {
-			peliculas.forEach(pelicula => pelicula.classList.remove('hover'));
-			elemento.classList.add('hover');
-		}, 300);
-	});
+  pelicula.addEventListener('mouseenter', (e) => {
+    const elemento = e.currentTarget;
+    setTimeout(() => {
+      peliculas.forEach(pelicula => pelicula.classList.remove('hover'));
+      elemento.classList.add('hover');
+    }, 300);
+  });
 });
 
-fila.addEventListener('mouseleave', () => {
-	peliculas.forEach(pelicula => pelicula.classList.remove('hover'));
+fila.forEach(contenedor => {
+  contenedor.addEventListener('mouseleave', () => {
+    peliculas.forEach(pelicula => pelicula.classList.remove('hover'));
+  });
 });
+
 
 // Primero, obtén referencias a los nuevos elementos
 const fila2 = document.querySelector('.contenedor-carousel2');
