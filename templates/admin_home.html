@@ -55,6 +55,7 @@
 										<th>Fecha de lanzamiento</th>
 										<th>Género</th>
 										<th>Duración</th>
+										<th>Asignar Reparto</th>
 										<th>Acciones</th>
 									</tr>
 									{% for content in contents %}
@@ -70,6 +71,12 @@
 										</td>
 										
 										<td>{{ content.duration }}</td>
+										<td>
+											<div class="row justify-content-center">
+												<a class="boton" href="/add_actor/{{ content.id }}">Actores</a>
+												<a class="boton" href="/add_director/{{ content.id }}">Director</a>
+											</div>
+										</td>
 										<td style="width: 320px;">
 											<div class="row justify-content-center">
 												<a class="boton" href="/edit_content/{{ content.id }}">Editar</a>

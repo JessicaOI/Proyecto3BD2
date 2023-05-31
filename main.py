@@ -392,6 +392,69 @@ def delete_content(content_id):
     flash("Contenido eliminado con éxito")
     return redirect(url_for("admin_home"))
 
+# Añadir Actores
+
+
+@app.route("/add_actor/<content_id>", methods=["GET", "POST"])
+def add_actor(content_id):
+    # Get the user ID from the session
+    user_id = session_flask.get('user_id')
+
+    with driver.session() as session:
+        # Query the user by ID
+        user = session.read_transaction(_get_user_by_id, user_id)
+
+    # Check if the user is logged in
+    if user is None:
+        return redirect(url_for('login_admin'))
+
+    if 'message' in session_flask:
+        flash(session_flask['message'])
+        session_flask.pop('message', None)
+
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        name = request.form.get("name")
+        dob = datetime.strptime(
+            request.form.get("dob"), "%Y-%m-%d").date()
+        nacionality = request.form.get("nacionality")
+        awards = request.form.get("awards")
+        role = request.form.get("role")
+        hiring_date = datetime.strptime(
+            request.form.get("hiring_date"), "%Y-%m-%d").date()
+        salary = int(request.form.get("salary"))
+        character = request.form.get("character")
+
+        id = random.randint(1, 10000000)
+
+        # Crear la nueva película en la base de datos
+        actor_data = {
+            "id": id,
+            "name": name,
+            "nacionality": nacionality,
+            "dob": dob,
+            "awards": awards,
+            "role": role
+        }
+        with driver.session() as session:
+            session.write_transaction(_add_actor, actor_data)
+
+        relation_data = {
+            "content_id": content_id,
+            "actor_id": id,
+            "hiring_date": hiring_date,
+            "salary": salary,
+            "character": character
+        }
+        with driver.session() as session:
+            session.write_transaction(
+                _create_acted_in_relation, relation_data)
+
+        flash("Actor añadido con éxito")
+
+    return render_template("/add_actor.html", content_id=content_id)
+
+
 # Gestion de Usuarios
 
 
@@ -495,14 +558,6 @@ def _add_series(tx, data):
     )
 
 
-@app.route("/add_actor", methods=["POST"])
-def add_actor():
-    data = request.get_json()
-    with driver.session() as session:
-        session.write_transaction(_add_actor, data)
-    return jsonify({"message": "Actor created successfully"}), 201
-
-
 def _add_actor(tx, data):
     tx.run(
         "CREATE (a:Staff:Actor {id: $id, name: $name, dob: $dob, nationality: $nationality, awards: $awards, role: $role})",
@@ -582,19 +637,13 @@ def _create_recommended_relation(tx, data):
     )
 
 
-@app.route("/create_acted_in_relation", methods=["POST"])
-def create_acted_in_relation():
-    data = request.get_json()
-    with driver.session() as session:
-        session.write_transaction(_create_acted_in_relation, data)
-    return jsonify({"message": "Acted_In relation created successfully"}), 201
-
-
 def _create_acted_in_relation(tx, data):
+    data['content_id'] = int(data['content_id'])  # Convert content_id to int
+    data['actor_id'] = int(data['actor_id'])  # Convert content_id to int
     query = """
     MATCH (c:Content {id: $content_id})
     MATCH (a:Staff:Actor {id: $actor_id})
-    CREATE (c)-[r:Acted_By {character: $character, hiring_date: $hiring_date, salary: $salary}]->(a)
+    CREATE (c)-[r:ACTUADO_POR {character: $character, hiring_date: $hiring_date, salary: $salary}]->(a)
     """
     tx.run(
         query,
