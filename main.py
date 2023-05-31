@@ -523,6 +523,104 @@ def gestionar_usuarios():
     return render_template("/gestionar_usuarios.html", users=users)
 
 
+@app.route("/add_user_admin", methods=["GET", "POST"])
+def add_user_admin():
+    # Get the user ID from the session
+    user_id = session_flask.get('user_id')
+
+    with driver.session() as session:
+        # Query the user by ID
+        user = session.read_transaction(_get_user_by_id, user_id)
+
+    # Check if the user is logged in
+    if user is None:
+        return redirect(url_for('login_admin'))
+
+    if 'message' in session_flask:
+        flash(session_flask['message'])
+        session_flask.pop('message', None)
+
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        account_type = request.form.get("account_type")
+        nombre_completo = request.form.get("nombre_completo")
+        correo = request.form.get("correo")
+        dob = datetime.strptime(
+            request.form.get("fecha_nac"), "%Y-%m-%d").date()
+        tipo_cuenta = request.form.get("tipo_cuenta")
+        contrasena = request.form.get("contrasena")
+        nota = request.form.get("nota")
+
+        active = True
+
+        if account_type == "admin":
+            # Variables necesarias para una película
+            id = random.randint(1, 10000000)
+
+            # Crear la nueva película en la base de datos
+            user_data = {
+                "id": id,
+                "name": nombre_completo,
+                "email": correo,
+                "dob": dob,
+                "password": contrasena,
+                "active": active
+            }
+            with driver.session() as session:
+                session.write_transaction(_add_admin, user_data)
+
+            backlog = f"Backlog: Usuario {nombre_completo} creada por el usuario {user['u']['name']}"
+
+            # Crear relación entre el administrador y el contenido creado
+            relation_data = {
+                "admin_id": user_id,
+                "user_id": id,
+                "fecha_de_adicion": datetime.today().date(),  # Fecha actual
+                "nota": nota,  # Aquí puedes guardar una nota si es necesario
+                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+            }
+            with driver.session() as session:
+                session.write_transaction(
+                    _create_gestion_relation, relation_data)
+
+            flash("Usuario creado con éxito")
+
+        elif account_type == "customer":
+            # Variables necesarias para una película
+            id = random.randint(1, 10000000)
+
+            # Crear la nueva película en la base de datos
+            user_data = {
+                "id": id,
+                "name": nombre_completo,
+                "email": correo,
+                "dob": dob,
+                "password": contrasena,
+                "active": active,
+                "account_type": account_type
+            }
+            with driver.session() as session:
+                session.write_transaction(_add_user, user_data)
+
+            backlog = f"Backlog: Usuario {nombre_completo} creada por el usuario {user['u']['name']}"
+
+            # Crear relación entre el administrador y el contenido creado
+            relation_data = {
+                "admin_id": user_id,
+                "user_id": id,
+                "fecha_de_adicion": datetime.today().date(),  # Fecha actual
+                "nota": nota,  # Aquí puedes guardar una nota si es necesario
+                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+            }
+            with driver.session() as session:
+                session.write_transaction(
+                    _create_gestion_relation, relation_data)
+
+            flash("Usuario creado con éxito")
+
+    return render_template("/add_user_admin.html", user=user)
+
+
 @app.route("/delete_user/<user_id>", methods=["POST"])
 def delete_user(user_id):
     print(user_id)
@@ -759,6 +857,25 @@ def _create_content_relation(tx, data):
         query,
         admin_id=data.get("admin_id"),
         content_id=data.get("content_id"),
+        fecha_de_adicion=data.get("fecha_de_adicion"),
+        nota=data.get("nota"),
+        backlog=data.get("backlog"),
+    )
+
+
+def _create_gestion_relation(tx, data):
+    data['admin_id'] = int(data['admin_id'])  # Convert content_id to int
+    data['user_id'] = int(data['user_id'])  # Convert content_id to int
+    print(data)
+    query = """
+    MATCH (a:Admin {id: $admin_id})
+    MATCH (u:User {id: $user_id})
+    CREATE (a)-[r:GESTIONA {fecha_de_adicion: $fecha_de_adicion, nota: $nota, backlog: $backlog}]->(u)
+    """
+    tx.run(
+        query,
+        admin_id=data.get("admin_id"),
+        user_id=data.get("user_id"),
         fecha_de_adicion=data.get("fecha_de_adicion"),
         nota=data.get("nota"),
         backlog=data.get("backlog"),
