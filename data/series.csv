@@ -1,31 +1,31 @@
-﻿id,title,release_date,genre,episode_duration,total_episodes
-1,Stranger Things,7/15/2016,Drama,50,36
-2,Game of Thrones,4/17/2011,Fantasy,60,73
-3,Breaking Bad,1/20/2008,Crime,47,62
-4,Friends,9/22/1994,Comedy,22,236
-5,The Crown,11/4/2016,Biography,60,60
-6,Money Heist,5/2/2017,Action,45,31
-7,Stranger Things 2,10/27/2017,Drama,50,9
-8,Stranger Things 3,7/4/2019,Drama,50,8
-9,Stranger Things 4,7/15/2022,Drama,50,8
-10,Breaking Bad: Better Call Saul,2/8/2015,Crime,46,63
-11,Friends: The Reunion,5/27/2021,Comedy,104,1
-12,Gossip Girl,9/19/2007,Drama,42,121
-13,The Office,3/24/2005,Comedy,22,201
-14,Sherlock,7/25/2010,Crime,90,13
-15,Mindhunter,10/13/2017,Crime,60,19
-16,Vikings,3/3/2013,Action,45,89
-17,Band of Brothers,9/9/2001,Drama,60,10
-18,Fargo,4/15/2014,Crime,53,50
-19,Chernobyl,5/6/2019,Drama,60,5
-20,Black Mirror,12/4/2011,Drama,60,22
-21,The Witcher,12/20/2019,Fantasy,60,16
-22,Breaking Bad: El Camino,10/11/2019,Crime,122,1
-23,The Big Bang Theory,9/24/2007,Comedy,22,279
-24,Stranger Things 5,7/15/2023,Drama,50,50
-25,Dark,12/1/2017,Drama,60,26
-26,The Mandalorian,11/12/2019,Action,30,16
-27,Friends: The One Where They All Came Back,5/27/2022,Comedy,60,1
-28,Westworld,10/2/2016,Sci-Fi,60,28
-29,The Simpsons,12/17/1989,Animation,22,713
-30,Breaking Bad: Jesse Pinkman's Journey,10/11/2019,Crime,62,1
+﻿id,title,release_date,genre,episode_duration,total_episodes,image
+1,Stranger Things,2016-07-15,Drama;Mystery;Sci-Fi,50,36,https://es.web.img3.acsta.net/pictures/22/05/14/13/26/5638861.jpg
+2,Game of Thrones,2011-04-17,Fantasy;Drama;Adventure,60,73,https://m.media-amazon.com/images/M/MV5BYTRiNDQwYzAtMzVlZS00NTI5LWJjYjUtMzkwNTUzMWMxZTllXkEyXkFqcGdeQXVyNDIzMzcwNjc@._V1_.jpg
+3,Breaking Bad,2008-01-20,Crime;Drama;Thriller,47,62,https://m.media-amazon.com/images/M/MV5BYmQ4YWMxYjUtNjZmYi00MDQ1LWFjMjMtNjA5ZDdiYjdiODU5XkEyXkFqcGdeQXVyMTMzNDExODE5._V1_FMjpg_UX1000_.jpg
+4,Friends,1994-09-22,Comedy;Romance,22,236,https://i.blogs.es/b6418d/friends-tiempo/1366_2000.jpeg
+5,The Crown,2016-11-04,Biography;Drama;History,60,60,https://m.media-amazon.com/images/M/MV5BZTEyNjBjYmYtYWYxYi00MmQyLThlYmItY2I4NzM1Mjg1MWYxXkEyXkFqcGdeQXVyMTU3ODI3MTk2._V1_FMjpg_UX1000_.jpg
+6,Money Heist,2017-05-02,Action;Crime;Drama,45,31,https://m.media-amazon.com/images/M/MV5BODI0ZTljYTMtODQ1NC00NmI0LTk1YWUtN2FlNDM1MDExMDlhXkEyXkFqcGdeQXVyMTM0NTUzNDIy._V1_.jpg
+7,Stranger Things 2,2017-10-27,Drama;Mystery;Sci-Fi,50,9,https://upload.wikimedia.org/wikipedia/en/7/7a/Stranger_Things_%28season_II%29.jpg
+8,Stranger Things 3,2019-07-04,Drama;Mystery;Sci-Fi,50,8,https://i.blogs.es/4e7fc0/cartel-stranger-things/840_560.jpg
+9,Stranger Things 4,2022-07-15,Drama;Mystery;Sci-Fi,50,8,https://i.blogs.es/cf28b1/stranger-things-4-cartel/840_560.jpeg
+10,Breaking Bad: Better Call Saul,2015-02-08,Crime;Drama;Thriller,46,63,https://gumlet.assettype.com/film-companion%2Fimport%2Fwp-content%2Fuploads%2F2022%2F04%2FFC-breaking-bad-better-call-saul-Lead-Image1-min.jpg?auto=format%2Ccompress&fit=max&w=1200
+11,Friends: The Reunion,2021-05-27,Comedy;Reality-TV,104,1,https://m.media-amazon.com/images/M/MV5BODI0MzdhODAtNDMwNi00NGZlLTg1Y2YtN2M5ZGFmOThkZGM3XkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg
+12,Gossip Girl,2007-09-19,Drama;Romance,42,121,https://m.media-amazon.com/images/M/MV5BMzkwMTI0MGUtYzQzZi00ZTEwLWJkMmQtNDhmY2RjNDcxYzViXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_FMjpg_UX1000_.jpg
+13,The Office,2005-03-24,Comedy,22,201,https://m.media-amazon.com/images/M/MV5BMDNkOTE4NDQtMTNmYi00MWE0LWE4ZTktYTc0NzhhNWIzNzJiXkEyXkFqcGdeQXVyMzQ2MDI5NjU@._V1_FMjpg_UX1000_.jpg
+14,Sherlock,2010-07-25,Crime;Drama;Mystery,90,13,https://m.media-amazon.com/images/M/MV5BMWEzNTFlMTQtMzhjOS00MzQ1LWJjNjgtY2RhMjFhYjQwYjIzXkEyXkFqcGdeQXVyNDIzMzcwNjc@._V1_FMjpg_UX1000_.jpg
+15,Mindhunter,2017-10-13,Crime;Drama;Thriller,60,19,https://m.media-amazon.com/images/M/MV5BNWNmYzQ1ZWUtYTQ3ZS00Y2UwLTlkMDctZThlOTJkMGJiNzBiXkEyXkFqcGdeQXVyNjg2NjQwMDQ@._V1_.jpg
+16,Vikings,2013-03-03,Action;Adventure;Drama,45,89,https://m.media-amazon.com/images/M/MV5BODk4ZjU0NDUtYjdlOS00OTljLTgwZTUtYjkyZjk1NzExZGIzXkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_.jpg
+17,Band of Brothers,2001-09-09,Drama;Action;History,60,10,https://m.media-amazon.com/images/M/MV5BMTI3ODc2ODc0M15BMl5BanBnXkFtZTYwMjgzNjc3._V1_FMjpg_UX1000_.jpg
+18,Fargo,2014-04-15,Crime;Drama;Thriller,53,50,https://m.media-amazon.com/images/M/MV5BN2NiMGE5M2UtNWNlNC00N2Y4LTkwOWUtMDlkMzEwNTcyOTcyXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX1000_.jpg
+19,Chernobyl,2019-05-06,Drama;History;Thriller,60,5,https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Chernobyl_2019_Miniseries.jpg/220px-Chernobyl_2019_Miniseries.jpg
+20,Black Mirror,2011-12-04,Drama;Sci-Fi;Thriller,60,22,https://m.media-amazon.com/images/M/MV5BYTM3YWVhMDMtNjczMy00NGEyLWJhZDctYjNhMTRkNDE0ZTI1XkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX1000_.jpg
+21,The Witcher,2019-12-20,Fantasy;Action;Adventure,60,16,https://m.media-amazon.com/images/M/MV5BMDEwOWVlY2EtMWI0ZC00OWVmLWJmZGItYTk3YjYzN2Y0YmFkXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg
+22,Breaking Bad: El Camino,2019-10-11,Crime;Drama;Thriller,122,1,https://es.web.img3.acsta.net/pictures/19/08/26/10/17/5919127.jpg
+23,The Big Bang Theory,2007-09-24,Comedy;Romance,22,279,https://m.media-amazon.com/images/M/MV5BY2FmZTY5YTktOWRlYy00NmIyLWE0ZmQtZDg2YjlmMzczZDZiXkEyXkFqcGdeQXVyNjg4NzAyOTA@._V1_FMjpg_UX1000_.jpg
+24,Stranger Things 5,2023-07-15,Drama;Mystery;Sci-Fi,50,50,https://i.pinimg.com/originals/57/e0/18/57e0188e118b23d3d026b8519001f5a4.jpg
+25,Dark,2017-12-01,Drama;Mystery;Sci-Fi,60,26,https://m.media-amazon.com/images/M/MV5BOTk2NzUyOTctZDdlMS00MDJlLTgzNTEtNzQzYjFhNjA0YjBjXkEyXkFqcGdeQXVyMjg1NDcxNDE@._V1_FMjpg_UX1000_.jpg
+26,The Mandalorian,2019-11-12,Action;Adventure;Sci-Fi,30,16,https://m.media-amazon.com/images/M/MV5BN2M5YWFjN2YtYzU2YS00NzBlLTgwZWUtYWQzNWFhNDkyYjg3XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_.jpg
+27,Friends: The One Where They All Came Back,2022-05-27,Comedy;Reality-TV,60,1,https://m.media-amazon.com/images/M/MV5BMjA2MjYxMjg2Ml5BMl5BanBnXkFtZTgwMzY2NTQ0MDE@._V1_.jpg
+28,Westworld,2016-10-02,Drama;Mystery;Sci-Fi,60,28,https://m.media-amazon.com/images/M/MV5BZDg1OWRiMTktZDdiNy00NTZlLTg2Y2EtNWRiMTcxMGE5YTUxXkEyXkFqcGdeQXVyMTM2MDY0OTYx._V1_FMjpg_UX1000_.jpg
+29,The Simpsons,1989-12-17,Animation;Comedy,22,713,https://m.media-amazon.com/images/M/MV5BYjFkMTlkYWUtZWFhNy00M2FmLThiOTYtYTRiYjVlZWYxNmJkXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_FMjpg_UX1000_.jpg
+30,Outer Banks,2020-10-11,Drama;Action;Adventure;Mystery;Romance,62,20,https://m.media-amazon.com/images/M/MV5BM2Q3MmQzODctZDJhMi00NGMyLWI4M2YtZDkwODdiOGZkMGRjXkEyXkFqcGdeQXVyMzQ2MDI5NjU@._V1_FMjpg_UX1000_.jpg

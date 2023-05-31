@@ -1,0 +1,54 @@
+LOAD CSV WITH HEADERS FROM 'https://drive.google.com/uc?export=download&id=1co5BE_LiVX91CA5oBp_q6kkYcdMCuKlO' AS row
+MERGE (m:Content:Movie {id: toInteger(row.content_id)})
+ON CREATE SET m.title = row.title,
+              m.release_date = date(row.release_date),
+              m.genre = split(row.genre, ";"),
+              m.duration = toInteger(row.duration),
+              m.image = row.image
+ON MATCH SET m.title = row.title,
+              m.release_date = date(row.release_date),
+              m.genre = split(row.genre, ";"),
+              m.duration = toInteger(row.duration),
+              m.image = row.image;
+
+
+LOAD CSV WITH HEADERS FROM 'https://drive.google.com/uc?export=download&id=1SoDHPBk5aM_iwVL9u571h8z4e33sUVX1' AS row
+MERGE (s:Content:Series {id: toInteger(row.id)})
+ON CREATE SET s.title = row.title,
+              s.release_date = date(row.release_date),
+              s.genre = split(row.genre, ";"),
+              s.episode_duration = toInteger(row.episode_duration),
+	        s.total_episodes = toInteger(row.total_episodes),
+              s.image = row.image
+ON MATCH SET s.title = row.title,
+              s.release_date = date(row.release_date),
+              s.genre = split(row.genre, ";"),
+              s.episode_duration = toInteger(row.episode_duration),
+		  s.total_episodes = toInteger(row.total_episodes),
+              s.image = row.image;
+
+
+LOAD CSV WITH HEADERS FROM 'https://drive.google.com/uc?export=download&id=12CtLjIrN4-oX-HnFU9DrPjKmdqgijQ1m' AS row
+MERGE (p:Personal:Director {id: toInteger(row.id)})
+ON CREATE SET p.name = row.name,
+              p.dob = date(row.dob),
+              p.nationality = row.nationality
+ON MATCH SET p.name = row.name,
+              p.dob = date(row.dob),
+              p.nationality = row.nationality;
+
+
+LOAD CSV WITH HEADERS FROM 'https://drive.google.com/uc?export=download&id=1jV7mn1yXlgJwaOM0EuWMmifvfGPnL0AA' AS row
+MERGE (p:Personal:Actor {id: toInteger(row.id)})
+ON CREATE SET p.name = row.name,
+              p.dob = date(row.dob),
+              p.nationality = row.nationality,
+		  p.awards = row.awards,
+	        p.role = row.role
+ON MATCH SET p.name = row.name,
+              p.dob = date(row.dob),
+              p.nationality = row.nationality,
+		  p.awards = row.awards,
+	        p.role = row.role
+
+
