@@ -682,6 +682,7 @@ def get_series(tx):
     # print(records)
     return records
 
+
 @app.route("/movies")
 def movies():
     user_id = session.get("user_id")
@@ -694,14 +695,17 @@ def movies():
 
         movie_list = [dict(movie) for movie in movie_list]
         for movie in movie_list:
-            is_fav = neo4j_session.read_transaction(is_favorite, user_id, movie["title"])
+            is_fav = neo4j_session.read_transaction(
+                is_favorite, user_id, movie["title"]
+            )
             movie["is_favorite"] = is_fav
 
         series_list = [dict(series) for series in series_list]
         for series in series_list:
-            is_fav = neo4j_session.read_transaction(is_favorite_series, user_id, series["title"])
+            is_fav = neo4j_session.read_transaction(
+                is_favorite_series, user_id, series["title"]
+            )
             series["is_favorite"] = is_fav
-
 
     return render_template(
         "home.html",
@@ -968,6 +972,7 @@ def _add_favorite_movie(tx, user_id, movie_title):
     result = tx.run(query, user_id=user_id, movie_title=movie_title)
     return result.single()
 
+
 def _add_favorite_series(tx, user_id, series_title):
     query = """
     MATCH (u:User),(s:Series)
@@ -979,13 +984,12 @@ def _add_favorite_series(tx, user_id, series_title):
     return result.single()
 
 
-
 @app.route("/add_favorite_movie", methods=["POST"])
 def add_favorite_movie():
     # Obtenemos el id del usuario logueado de la sesión
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
     # Obtenemos el titulo de la película desde el body del request
-    movie_title = request.form.get('movie_title')
+    movie_title = request.form.get("movie_title")
     # print(user_id)
     # print(movie_title)
 
@@ -994,17 +998,19 @@ def add_favorite_movie():
 
     return jsonify({"message": "Movie added to favorites successfully"}), 200
 
-@app.route('/add_favorite_series', methods=['POST'])
+
+@app.route("/add_favorite_series", methods=["POST"])
 def add_favorite_series():
     # Obtenemos el id del usuario logueado de la sesión
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
     # Obtenemos el titulo de la serie desde el body del request
-    series_title = request.form.get('series_title')
+    series_title = request.form.get("series_title")
 
     with driver.session() as session:
         session.write_transaction(_add_favorite_series, user_id, series_title)
 
     return jsonify({"message": "Series added to favorites successfully"}), 200
+
 
 def _remove_favorite_movie(tx, user_id, movie_title):
     user_id = int(user_id)
@@ -1014,6 +1020,7 @@ def _remove_favorite_movie(tx, user_id, movie_title):
     DELETE r
     """
     tx.run(query, user_id=user_id, movie_title=movie_title)
+
 
 def _remove_favorite_series(tx, user_id, series_title):
     user_id = int(user_id)
@@ -1025,24 +1032,25 @@ def _remove_favorite_series(tx, user_id, series_title):
     tx.run(query, user_id=user_id, series_title=series_title)
 
 
-@app.route('/remove_favorite_movie', methods=['DELETE'])
+@app.route("/remove_favorite_movie", methods=["DELETE"])
 def remove_favorite_movie():
     # Obtenemos el id del usuario logueado de la sesión
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
     # Obtenemos el titulo de la película desde el body del request
-    movie_title = request.form.get('movie_title')
+    movie_title = request.form.get("movie_title")
 
     with driver.session() as session:
         session.write_transaction(_remove_favorite_movie, user_id, movie_title)
 
     return jsonify({"message": "Movie removed from favorites successfully"}), 200
 
-@app.route('/remove_favorite_series', methods=['DELETE'])
+
+@app.route("/remove_favorite_series", methods=["DELETE"])
 def remove_favorite_series():
     # Obtenemos el id del usuario logueado de la sesión
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
     # Obtenemos el titulo de la serie desde el body del request
-    series_title = request.form.get('series_title')
+    series_title = request.form.get("series_title")
     # print(user_id)
     # print(series_title)
     with driver.session() as session:
@@ -1164,10 +1172,20 @@ def mark_watched():
 def _get_watched_content(tx, user_id):
     query = """
     MATCH (u:User {id: $user_id})-[r:WATCHED]->(c:Content)
-    RETURN c
+    RETURN DISTINCT c.id AS id, c.duration AS duration, c.genre AS genre, c.image AS image, c.release_date AS release_date, c.title AS title
     """
     result = tx.run(query, user_id=user_id)
-    return [record["c"] for record in result]
+    return [
+        {
+            "id": record["id"],
+            "duration": record["duration"],
+            "genre": record["genre"],
+            "image": record["image"],
+            "release_date": record["release_date"],
+            "title": record["title"],
+        }
+        for record in result
+    ]
 
 
 def _get_recommendations(tx, user_id, genres):
@@ -1196,14 +1214,16 @@ def get_recommendations():
     recommendations = generate_recommendations(user_id)
     return render_template("recommendations.html", recommendations=recommendations)
 
+
 # Busqueda
-@app.route('/buscar_contenido', methods=['GET', 'POST'])
+@app.route("/buscar_contenido", methods=["GET", "POST"])
 def buscar_contenido():
-    if request.method == 'POST':
-        userInput = request.form['user_input']
+    if request.method == "POST":
+        userInput = request.form["user_input"]
 
         with driver.session() as session:
-            result = session.run("""
+            result = session.run(
+                """
             WITH $userInput AS userInput
             MATCH (c:Content)
             WHERE toLower(c.title) CONTAINS toLower(userInput)
@@ -1213,19 +1233,23 @@ def buscar_contenido():
             MATCH (c1:Content {title: contenidoTitulo})
             OPTIONAL MATCH (c1)-[r:ACTUADO_POR|DIRIGIDO_POR|SECUELA]-(related)
             RETURN c1.title AS nodoPrincipal, collect(DISTINCT related) AS nodosRelacionados, collect(DISTINCT r) AS relaciones
-            """, userInput=userInput)
+            """,
+                userInput=userInput,
+            )
 
             record = result.single()
 
-            nodoPrincipal = record['nodoPrincipal']
-            nodosRelacionados = record['nodosRelacionados']
-            relaciones = record['relaciones']
+            nodoPrincipal = record["nodoPrincipal"]
+            nodosRelacionados = record["nodosRelacionados"]
+            relaciones = record["relaciones"]
 
             data = list(zip(nodosRelacionados, relaciones))
 
-            return render_template('/busqueda.html', nodoPrincipal=nodoPrincipal, data=data)
+            return render_template(
+                "/busqueda.html", nodoPrincipal=nodoPrincipal, data=data
+            )
 
-    return render_template('/busqueda.html')
+    return render_template("/busqueda.html")
 
 
 if __name__ == "__main__":
