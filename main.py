@@ -514,9 +514,6 @@ def add_director(content_id):
 
 @app.route("/gestionar_usuarios")
 def gestionar_usuarios():
-    # Verificar si el usuario tiene permisos de administrador
-    if "admin" not in session_flask.get('user_id', {}).labels:
-        return redirect(url_for('login_admin'))
 
     with driver.session() as session:
         # Obtener todos los usuarios de la base de datos
@@ -525,9 +522,13 @@ def gestionar_usuarios():
     return render_template("/gestionar_usuarios.html", users=users)
 
 
-def _get_all_users(tx):
-    result = tx.run("MATCH (u:User) RETURN u")
-    return [record["u"] for record in result]
+@app.route("/delete_user/<user_id>", methods=["POST"])
+def delete_user(user_id):
+    print(user_id)
+    with driver.session() as session:
+        session.write_transaction(_delete_user, user_id)
+    flash("Usuario eliminado con éxito")
+    return redirect(url_for("gestionar_usuarios"))
 
 
 @app.route("/add_user", methods=["POST"])
@@ -825,9 +826,24 @@ def _delete_content(tx, content_id):
     )
 
 
+def _delete_user(tx, user_id):
+    user_id = int(user_id)
+    tx.run(
+        """
+        MATCH (u) WHERE u.id = $user_id DETACH DELETE u
+        """,
+        user_id=user_id
+    )
+
+
 def _get_all_content(tx):
     result = tx.run("MATCH (c:Content) RETURN c")
     return [dict(record["c"]._properties) for record in result]
+
+
+def _get_all_users(tx):
+    result = tx.run("MATCH (u:User) RETURN u")
+    return [dict(record["u"]._properties) for record in result]
 
 
 if __name__ == "__main__":
