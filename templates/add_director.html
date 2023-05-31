@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/estilosp.css') }}">
 	<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<title>AGREGAR ACTOR</title>
+	<title>AGREGAR DIRECTOR</title>
 </head>
 <body>
 <header>
@@ -34,10 +34,10 @@
                         {% endif %}
                     {% endwith %}
                     <div class="d-flex-spaced my-4">
-                        <h3>Agregar nuevo actor</h3>
+                        <h3>Agregar nuevo director</h3>
                         <a href="/admin_home" class="boton">Regresar</a>
                     </div>
-                    <form class="form_style" action="/add_actor/{{content_id}}" method="POST">
+                    <form class="form_style" action="/add_director/{{content_id}}" method="POST">
                         <br><br>
                         <label for="title">Name:</label>
                         <input type="text" name="name" required>
@@ -48,23 +48,15 @@
                         <label for="dob">Fecha de Nacimiento:</label>
                         <input type="date" name="dob" required>
                         <br><br>
-                        <label for="awards">Premios:</label>
-                        <input type="text" name="awards" required>
-                        <br><br>
-                        <label for="role">Rol (Protagonista/Secundario):</label>
-                        <input type="text" name="role" required>
-                        <br><br>
                         <label for="hiring_date">Fecha de Contratación:</label>
                         <input type="date" name="hiring_date" required>
                         <br><br>
                         <label for="salary">Salario:</label>
                         <input type="number" name="salary" required>
                         <br><br>
-                        <label for="character">Papel:</label>
-                        <input type="text" name="character" required>
-                        <br><br>
+
                         
-                        <input type="submit" class="boton" value="Agregar Actor">
+                        <input type="submit" class="boton" value="Agregar Director">
                     </form>
                 </div>
             </div>

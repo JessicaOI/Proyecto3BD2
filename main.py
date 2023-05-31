@@ -455,6 +455,60 @@ def add_actor(content_id):
     return render_template("/add_actor.html", content_id=content_id)
 
 
+@app.route("/add_director/<content_id>", methods=["GET", "POST"])
+def add_director(content_id):
+    # Get the user ID from the session
+    user_id = session_flask.get('user_id')
+
+    with driver.session() as session:
+        # Query the user by ID
+        user = session.read_transaction(_get_user_by_id, user_id)
+
+    # Check if the user is logged in
+    if user is None:
+        return redirect(url_for('login_admin'))
+
+    if 'message' in session_flask:
+        flash(session_flask['message'])
+        session_flask.pop('message', None)
+
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        name = request.form.get("name")
+        dob = datetime.strptime(
+            request.form.get("dob"), "%Y-%m-%d").date()
+        nacionality = request.form.get("nacionality")
+        hiring_date = datetime.strptime(
+            request.form.get("hiring_date"), "%Y-%m-%d").date()
+        salary = int(request.form.get("salary"))
+
+        id = random.randint(1, 10000000)
+
+        # Crear la nueva película en la base de datos
+        actor_data = {
+            "id": id,
+            "name": name,
+            "nacionality": nacionality,
+            "dob": dob,
+        }
+        with driver.session() as session:
+            session.write_transaction(_add_director, actor_data)
+
+        relation_data = {
+            "content_id": content_id,
+            "director_id": id,
+            "hiring_date": hiring_date,
+            "salary": salary,
+        }
+        with driver.session() as session:
+            session.write_transaction(
+                _create_directed_by_relation, relation_data)
+
+        flash("Director añadido con éxito")
+
+    return render_template("/add_director.html", content_id=content_id)
+
+
 # Gestion de Usuarios
 
 
@@ -570,14 +624,6 @@ def _add_actor(tx, data):
     )
 
 
-@app.route("/add_director", methods=["POST"])
-def add_director():
-    data = request.get_json()
-    with driver.session() as session:
-        session.write_transaction(_add_director, data)
-    return jsonify({"message": "Director created successfully"}), 201
-
-
 def _add_director(tx, data):
     tx.run(
         "CREATE (d:Staff:Director {id: $id, name: $name, dob: $dob, nationality: $nationality})",
@@ -655,19 +701,13 @@ def _create_acted_in_relation(tx, data):
     )
 
 
-@app.route("/create_directed_by_relation", methods=["POST"])
-def create_directed_by_relation():
-    data = request.get_json()
-    with driver.session() as session:
-        session.write_transaction(_create_directed_by_relation, data)
-    return jsonify({"message": "Directed_By relation created successfully"}), 201
-
-
 def _create_directed_by_relation(tx, data):
+    data['content_id'] = int(data['content_id'])  # Convert content_id to int
+    data['director_id'] = int(data['director_id'])  # Convert content_id to int
     query = """
     MATCH (c:Content {id: $content_id})
     MATCH (d:Staff:Director {id: $director_id})
-    CREATE (c)-[r:Directed_By {hiring_date: $hiring_date, salary: $salary}]->(d)
+    CREATE (c)-[r:DIRIGIDO_POR {hiring_date: $hiring_date, salary: $salary}]->(d)
     """
     tx.run(
         query,
