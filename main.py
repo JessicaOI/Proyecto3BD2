@@ -692,6 +692,14 @@ def movies():
         series_list = neo4j_session.read_transaction(get_series)
         watched_movies = neo4j_session.read_transaction(_get_watched_content, user_id)
         recommendations = generate_recommendations(user_id)
+        movie_list = [dict(movie) for movie in movie_list]
+
+        for movie in movie_list:
+            is_fav = neo4j_session.read_transaction(is_favorite, user_id, movie["title"])
+            print(f"{movie['title']} is favorite: {is_fav}")
+            movie["is_favorite"] = is_fav
+
+
 
     return render_template(
         "home.html",
@@ -928,6 +936,18 @@ def _edit_content_relation(tx, data):
         backlog=data.get("backlog"),
     )
 
+
+def is_favorite(tx, user_id, movie_title):
+    query = """
+    MATCH (u:User {id: $user_id})-[r:FAVORITE]->(m:Movie {title: $movie_title})
+    RETURN r
+    """
+    # print(user_id)
+    result = tx.run(query, user_id=user_id, movie_title=movie_title)
+    return result.single() is not None
+
+
+
 def _add_favorite_movie(tx, user_id, movie_title):
     query = """
     MATCH (u:User),(m:Movie)
@@ -949,15 +969,18 @@ def _add_favorite_series(tx, user_id, series_title):
     return result.single()
 
 
-@app.route('/add_favorite_movie', methods=['POST'])
+
+@app.route("/add_favorite_movie", methods=["POST"])
 def add_favorite_movie():
     # Obtenemos el id del usuario logueado de la sesión
     user_id = session_flask.get('user_id')
     # Obtenemos el titulo de la película desde el body del request
     movie_title = request.form.get('movie_title')
+    print(user_id)
+    print(movie_title)
 
-    with driver.session() as session:
-        session.write_transaction(_add_favorite_movie, user_id, movie_title)
+    with driver.session() as neo4j_session:
+        neo4j_session.write_transaction(_add_favorite_movie, user_id, movie_title)
 
     return jsonify({"message": "Movie added to favorites successfully"}), 200
 
