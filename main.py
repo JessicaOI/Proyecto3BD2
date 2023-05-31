@@ -1,9 +1,19 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
+from flask import (
+    Flask,
+    request,
+    jsonify,
+    render_template,
+    redirect,
+    url_for,
+    flash,
+    session,
+)
 from flask import session as session_flask
 from neo4j import GraphDatabase
 import random
 import os
 from datetime import datetime
+
 
 app = Flask(__name__)
 
@@ -19,9 +29,9 @@ neo4j_password = "0VbP5DwbQ2y7YcwKoGKB3vX06a8VnZiwNZp62KXyj_0"
 driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
 
 
-@app.route("/", methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
+    if request.method == "POST":
         # Obtener los datos del formulario
         email = request.form.get("correo")
         password = request.form.get("contra")
@@ -33,32 +43,32 @@ def login():
                 return jsonify({"error": "El usuario no existe"}), 404
 
             # Verificar si la contraseña coincide
-            if user['u']["password"] != password:
+            if user["u"]["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
-             # Get all content from the database
+            # Get all content from the database
             contents = session.read_transaction(_get_all_content)
 
             # Store the user ID in the session
-            session_flask['user_id'] = user['u']['id']
+            session_flask["user_id"] = user["u"]["id"]
 
             # Verificar si es un usuario administrador
-            if "admin" in user['u'].labels:
+            if "admin" in user["u"].labels:
                 # Página de inicio para administradores
-                return redirect(url_for('admin_home'))
+                return redirect(url_for("admin_home"))
 
             # El usuario ha iniciado sesión correctamente
             # Redirigir a la página de películas
-            return redirect(url_for('movies'))
+            return redirect(url_for("movies"))
 
     # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
     return render_template("/login.html")
 
 
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     session_flask.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for("login"))
 
 
 @app.route("/register", methods=["POST"])
@@ -66,8 +76,7 @@ def register():
     # Obtener los datos del formulario
     name = request.form.get("nombre_completo")
     email = request.form.get("correo")
-    fecha_nac = datetime.strptime(
-        request.form.get("fecha_nac"), "%Y-%m-%d").date()
+    fecha_nac = datetime.strptime(request.form.get("fecha_nac"), "%Y-%m-%d").date()
     tipo_cuenta = request.form.get("tipo_cuenta")
     password = request.form.get("contrasena")
 
@@ -89,7 +98,7 @@ def register():
             "password": password,
             "dob": fecha_nac,
             "active": cuenta_activa,
-            "account_type": tipo_cuenta
+            "account_type": tipo_cuenta,
         }
         session.write_transaction(_add_user, user_data)
 
@@ -98,9 +107,9 @@ def register():
     return render_template("/login.html")
 
 
-@app.route("/login_admin", methods=['GET', 'POST'])
+@app.route("/login_admin", methods=["GET", "POST"])
 def login_admin():
-    if request.method == 'POST':
+    if request.method == "POST":
         # Obtener los datos del formulario
         email = request.form.get("correo")
         password = request.form.get("contra")
@@ -112,27 +121,26 @@ def login_admin():
                 return jsonify({"error": "El usuario no existe"}), 404
 
             # Verificar si la contraseña coincide
-            if user['u']["password"] != password:
+            if user["u"]["password"] != password:
                 return jsonify({"error": "La contraseña es incorrecta"}), 401
 
-             # Get all content from the database
+            # Get all content from the database
             contents = session.read_transaction(_get_all_content)
 
             # Store the user ID in the session
-            session_flask['user_id'] = user['u']['id']
+            session_flask["user_id"] = user["u"]["id"]
 
             # Verificar si es un usuario administrador
-            if "admin" in user['u'].labels:
+            if "admin" in user["u"].labels:
                 # Página de inicio para administradores
-                return redirect(url_for('admin_home'))
+                return redirect(url_for("admin_home"))
 
             # El usuario ha iniciado sesión correctamente
             # Puedes redirigirlo a otra página o mostrar un mensaje de éxito
-            return redirect(url_for('admin_home'))
+            return redirect(url_for("admin_home"))
 
     # Si es una solicitud GET, mostrar la página de inicio de sesión y registro
     return render_template("/login_admin.html")
-
 
 
 @app.route("/register_admin", methods=["POST"])
@@ -140,8 +148,7 @@ def register_admin():
     # Obtener los datos del formulario
     name = request.form.get("nombre_completo")
     email = request.form.get("correo")
-    fecha_nac = datetime.strptime(
-        request.form.get("fecha_nac"), "%Y-%m-%d").date()
+    fecha_nac = datetime.strptime(request.form.get("fecha_nac"), "%Y-%m-%d").date()
     password = request.form.get("contrasena")
 
     # Variables necesarias
@@ -170,10 +177,10 @@ def register_admin():
     return render_template("/login_admin.html")
 
 
-@app.route("/admin_home", methods=['GET'])
+@app.route("/admin_home", methods=["GET"])
 def admin_home():
     # Get the user ID from the session
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
 
     with driver.session() as session:
         # Query the user by ID
@@ -181,7 +188,7 @@ def admin_home():
 
         # Check if the user is logged in
         if user is None:
-            return redirect(url_for('admin_home'))
+            return redirect(url_for("admin_home"))
 
         # Get all content from the database
         contents = session.read_transaction(_get_all_content)
@@ -195,7 +202,7 @@ def admin_home():
 @app.route("/add_content", methods=["GET", "POST"])
 def add_content():
     # Get the user ID from the session
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
 
     with driver.session() as session:
         # Query the user by ID
@@ -203,18 +210,19 @@ def add_content():
 
     # Check if the user is logged in
     if user is None:
-        return redirect(url_for('login_admin'))
+        return redirect(url_for("login_admin"))
 
-    if 'message' in session_flask:
-        flash(session_flask['message'])
-        session_flask.pop('message', None)
+    if "message" in session_flask:
+        flash(session_flask["message"])
+        session_flask.pop("message", None)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         # Obtener los datos del formulario
         content_type = request.form.get("content_type")
         title = request.form.get("title")
         release_date = datetime.strptime(
-            request.form.get("release_date"), "%Y-%m-%d").date()
+            request.form.get("release_date"), "%Y-%m-%d"
+        ).date()
         genre = request.form.get("genre")
         duration = int(request.form.get("duration"))
         image = request.form.get("image")
@@ -233,12 +241,14 @@ def add_content():
                 "release_date": release_date,
                 "genre": genre_list,
                 "duration": duration,
-                "image": image
+                "image": image,
             }
             with driver.session() as session:
                 session.write_transaction(_add_movie, movie_data)
 
-            backlog = f"Backlog: Pelicula {title} creada por el usuario {user['u']['name']}"
+            backlog = (
+                f"Backlog: Pelicula {title} creada por el usuario {user['u']['name']}"
+            )
 
             # Crear relación entre el administrador y el contenido creado
             relation_data = {
@@ -246,11 +256,10 @@ def add_content():
                 "content_id": id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
-                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+                "backlog": backlog,  # Aquí puedes guardar información sobre el backlog si es necesario
             }
             with driver.session() as session:
-                session.write_transaction(
-                    _create_content_relation, relation_data)
+                session.write_transaction(_create_content_relation, relation_data)
 
             flash("Contenido creado con éxito")
 
@@ -267,12 +276,14 @@ def add_content():
                 "genre": genre_list,
                 "episode_duration": duration,
                 "total_episodes": total_episodes,
-                "image": image
+                "image": image,
             }
             with driver.session() as session:
                 session.write_transaction(_add_series, series_data)
 
-            backlog = f"Backlog: Serie {title} creada por el usuario {user['u']['name']}"
+            backlog = (
+                f"Backlog: Serie {title} creada por el usuario {user['u']['name']}"
+            )
 
             # Crear relación entre el administrador y el contenido creado
             relation_data = {
@@ -280,11 +291,10 @@ def add_content():
                 "content_id": id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
-                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+                "backlog": backlog,  # Aquí puedes guardar información sobre el backlog si es necesario
             }
             with driver.session() as session:
-                session.write_transaction(
-                    _create_content_relation, relation_data)
+                session.write_transaction(_create_content_relation, relation_data)
 
             flash("Contenido creado con éxito")
 
@@ -294,7 +304,7 @@ def add_content():
 @app.route("/edit_content/<content_id>", methods=["GET", "POST"])
 def edit_content(content_id):
     # Get the user ID from the session
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
 
     with driver.session() as session:
         # Query the user by ID
@@ -303,18 +313,19 @@ def edit_content(content_id):
 
     # Check if the user is logged in
     if user is None:
-        return redirect(url_for('login_admin'))
+        return redirect(url_for("login_admin"))
 
-    if 'message' in session_flask:
-        flash(session_flask['message'])
-        session_flask.pop('message', None)
+    if "message" in session_flask:
+        flash(session_flask["message"])
+        session_flask.pop("message", None)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         # Obtener los datos del formulario
         content_type = request.form.get("content_type")
         title = request.form.get("title")
         release_date = datetime.strptime(
-            request.form.get("release_date"), "%Y-%m-%d").date()
+            request.form.get("release_date"), "%Y-%m-%d"
+        ).date()
         genre = request.form.get("genre")
         duration = request.form.get("duration")
         image = request.form.get("image")
@@ -331,12 +342,14 @@ def edit_content(content_id):
                 "release_date": release_date,
                 "genre": genre_list,
                 "duration": duration,
-                "image": image
+                "image": image,
             }
             with driver.session() as session:
                 session.write_transaction(_update_movie, movie_data)
 
-            backlog = f"Backlog: Pelicula {title} creada por el usuario {user['u']['name']}"
+            backlog = (
+                f"Backlog: Pelicula {title} creada por el usuario {user['u']['name']}"
+            )
 
             # Crear relación entre el administrador y el contenido creado
             relation_data = {
@@ -344,11 +357,10 @@ def edit_content(content_id):
                 "content_id": content_id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
-                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+                "backlog": backlog,  # Aquí puedes guardar información sobre el backlog si es necesario
             }
             with driver.session() as session:
-                session.write_transaction(
-                    _edit_content_relation, relation_data)
+                session.write_transaction(_edit_content_relation, relation_data)
 
             flash("Contenido editado con éxito")
 
@@ -362,12 +374,14 @@ def edit_content(content_id):
                 "release_date": release_date,
                 "genre": genre_list,
                 "episode_duration": duration,
-                "total_episodes": total_episodes
+                "total_episodes": total_episodes,
             }
             with driver.session() as session:
                 session.write_transaction(_update_series, series_data)
 
-            backlog = f"Backlog: Serie {title} creada por el usuario {user['u']['name']}"
+            backlog = (
+                f"Backlog: Serie {title} creada por el usuario {user['u']['name']}"
+            )
 
             # Crear relación entre el administrador y el contenido creado
             relation_data = {
@@ -375,15 +389,16 @@ def edit_content(content_id):
                 "content_id": content_id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
-                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+                "backlog": backlog,  # Aquí puedes guardar información sobre el backlog si es necesario
             }
             with driver.session() as session:
-                session.write_transaction(
-                    _edit_content_relation, relation_data)
+                session.write_transaction(_edit_content_relation, relation_data)
 
             flash("Contenido editado con éxito")
 
-    return render_template("/editar_contenido.html", user=user, content=content, content_id=content_id)
+    return render_template(
+        "/editar_contenido.html", user=user, content=content, content_id=content_id
+    )
 
 
 @app.route("/delete_content/<content_id>", methods=["POST"])
@@ -393,13 +408,14 @@ def delete_content(content_id):
     flash("Contenido eliminado con éxito")
     return redirect(url_for("admin_home"))
 
+
 # Añadir Actores
 
 
 @app.route("/add_actor/<content_id>", methods=["GET", "POST"])
 def add_actor(content_id):
     # Get the user ID from the session
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
 
     with driver.session() as session:
         # Query the user by ID
@@ -407,22 +423,22 @@ def add_actor(content_id):
 
     # Check if the user is logged in
     if user is None:
-        return redirect(url_for('login_admin'))
+        return redirect(url_for("login_admin"))
 
-    if 'message' in session_flask:
-        flash(session_flask['message'])
-        session_flask.pop('message', None)
+    if "message" in session_flask:
+        flash(session_flask["message"])
+        session_flask.pop("message", None)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         # Obtener los datos del formulario
         name = request.form.get("name")
-        dob = datetime.strptime(
-            request.form.get("dob"), "%Y-%m-%d").date()
+        dob = datetime.strptime(request.form.get("dob"), "%Y-%m-%d").date()
         nacionality = request.form.get("nacionality")
         awards = request.form.get("awards")
         role = request.form.get("role")
         hiring_date = datetime.strptime(
-            request.form.get("hiring_date"), "%Y-%m-%d").date()
+            request.form.get("hiring_date"), "%Y-%m-%d"
+        ).date()
         salary = int(request.form.get("salary"))
         character = request.form.get("character")
 
@@ -435,7 +451,7 @@ def add_actor(content_id):
             "nacionality": nacionality,
             "dob": dob,
             "awards": awards,
-            "role": role
+            "role": role,
         }
         with driver.session() as session:
             session.write_transaction(_add_actor, actor_data)
@@ -445,11 +461,10 @@ def add_actor(content_id):
             "actor_id": id,
             "hiring_date": hiring_date,
             "salary": salary,
-            "character": character
+            "character": character,
         }
         with driver.session() as session:
-            session.write_transaction(
-                _create_acted_in_relation, relation_data)
+            session.write_transaction(_create_acted_in_relation, relation_data)
 
         flash("Actor añadido con éxito")
 
@@ -459,7 +474,7 @@ def add_actor(content_id):
 @app.route("/add_director/<content_id>", methods=["GET", "POST"])
 def add_director(content_id):
     # Get the user ID from the session
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
 
     with driver.session() as session:
         # Query the user by ID
@@ -467,20 +482,20 @@ def add_director(content_id):
 
     # Check if the user is logged in
     if user is None:
-        return redirect(url_for('login_admin'))
+        return redirect(url_for("login_admin"))
 
-    if 'message' in session_flask:
-        flash(session_flask['message'])
-        session_flask.pop('message', None)
+    if "message" in session_flask:
+        flash(session_flask["message"])
+        session_flask.pop("message", None)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         # Obtener los datos del formulario
         name = request.form.get("name")
-        dob = datetime.strptime(
-            request.form.get("dob"), "%Y-%m-%d").date()
+        dob = datetime.strptime(request.form.get("dob"), "%Y-%m-%d").date()
         nacionality = request.form.get("nacionality")
         hiring_date = datetime.strptime(
-            request.form.get("hiring_date"), "%Y-%m-%d").date()
+            request.form.get("hiring_date"), "%Y-%m-%d"
+        ).date()
         salary = int(request.form.get("salary"))
 
         id = random.randint(1, 10000000)
@@ -502,8 +517,7 @@ def add_director(content_id):
             "salary": salary,
         }
         with driver.session() as session:
-            session.write_transaction(
-                _create_directed_by_relation, relation_data)
+            session.write_transaction(_create_directed_by_relation, relation_data)
 
         flash("Director añadido con éxito")
 
@@ -526,7 +540,7 @@ def gestionar_usuarios():
 @app.route("/add_user_admin", methods=["GET", "POST"])
 def add_user_admin():
     # Get the user ID from the session
-    user_id = session_flask.get('user_id')
+    user_id = session_flask.get("user_id")
 
     with driver.session() as session:
         # Query the user by ID
@@ -534,19 +548,18 @@ def add_user_admin():
 
     # Check if the user is logged in
     if user is None:
-        return redirect(url_for('login_admin'))
+        return redirect(url_for("login_admin"))
 
-    if 'message' in session_flask:
-        flash(session_flask['message'])
-        session_flask.pop('message', None)
+    if "message" in session_flask:
+        flash(session_flask["message"])
+        session_flask.pop("message", None)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         # Obtener los datos del formulario
         account_type = request.form.get("account_type")
         nombre_completo = request.form.get("nombre_completo")
         correo = request.form.get("correo")
-        dob = datetime.strptime(
-            request.form.get("fecha_nac"), "%Y-%m-%d").date()
+        dob = datetime.strptime(request.form.get("fecha_nac"), "%Y-%m-%d").date()
         tipo_cuenta = request.form.get("tipo_cuenta")
         contrasena = request.form.get("contrasena")
         nota = request.form.get("nota")
@@ -564,7 +577,7 @@ def add_user_admin():
                 "email": correo,
                 "dob": dob,
                 "password": contrasena,
-                "active": active
+                "active": active,
             }
             with driver.session() as session:
                 session.write_transaction(_add_admin, user_data)
@@ -577,11 +590,10 @@ def add_user_admin():
                 "user_id": id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
-                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+                "backlog": backlog,  # Aquí puedes guardar información sobre el backlog si es necesario
             }
             with driver.session() as session:
-                session.write_transaction(
-                    _create_gestion_relation, relation_data)
+                session.write_transaction(_create_gestion_relation, relation_data)
 
             flash("Usuario creado con éxito")
 
@@ -597,7 +609,7 @@ def add_user_admin():
                 "dob": dob,
                 "password": contrasena,
                 "active": active,
-                "account_type": account_type
+                "account_type": account_type,
             }
             with driver.session() as session:
                 session.write_transaction(_add_user, user_data)
@@ -610,11 +622,10 @@ def add_user_admin():
                 "user_id": id,
                 "fecha_de_adicion": datetime.today().date(),  # Fecha actual
                 "nota": nota,  # Aquí puedes guardar una nota si es necesario
-                "backlog": backlog  # Aquí puedes guardar información sobre el backlog si es necesario
+                "backlog": backlog,  # Aquí puedes guardar información sobre el backlog si es necesario
             }
             with driver.session() as session:
-                session.write_transaction(
-                    _create_gestion_relation, relation_data)
+                session.write_transaction(_create_gestion_relation, relation_data)
 
             flash("Usuario creado con éxito")
 
@@ -638,7 +649,6 @@ def add_user():
     return jsonify({"message": "User created successfully"}), 201
 
 
-
 def _add_user(tx, data):
     tx.run(
         "CREATE (u:User:Customer {id: $id, name: $name, email: $email, password: $password, dob: $dob, active: $active, account_type: $account_type})",
@@ -659,10 +669,12 @@ def add_admin():
         session.write_transaction(_add_admin, data)
     return jsonify({"message": "Admin created successfully"}), 201
 
+
 def get_movies(tx):
     result = tx.run("MATCH (m:Movie) RETURN m.title as title, m.image as image")
     records = [record for record in result]
     return records
+
 
 def get_series(tx):
     result = tx.run("MATCH (s:Series) RETURN s.title as title, s.image as image")
@@ -671,13 +683,23 @@ def get_series(tx):
     return records
 
 
-@app.route('/movies')
+@app.route("/movies")
 def movies():
-    with driver.session() as session:
-        movie_list = session.read_transaction(get_movies)
-        series_list = session.read_transaction(get_series)
-    return render_template('home.html', movies=movie_list, series=series_list)
+    user_id = session.get("user_id")
 
+    with driver.session() as neo4j_session:
+        movie_list = neo4j_session.read_transaction(get_movies)
+        series_list = neo4j_session.read_transaction(get_series)
+        watched_movies = neo4j_session.read_transaction(_get_watched_content, user_id)
+        recommendations = generate_recommendations(user_id)
+
+    return render_template(
+        "home.html",
+        movies=movie_list,
+        series=series_list,
+        watched_movies=watched_movies,
+        recommendations=recommendations,
+    )
 
 
 def _add_admin(tx, data):
@@ -805,8 +827,8 @@ def _create_recommended_relation(tx, data):
 
 
 def _create_acted_in_relation(tx, data):
-    data['content_id'] = int(data['content_id'])  # Convert content_id to int
-    data['actor_id'] = int(data['actor_id'])  # Convert content_id to int
+    data["content_id"] = int(data["content_id"])  # Convert content_id to int
+    data["actor_id"] = int(data["actor_id"])  # Convert content_id to int
     query = """
     MATCH (c:Content {id: $content_id})
     MATCH (a:Staff:Actor {id: $actor_id})
@@ -823,8 +845,8 @@ def _create_acted_in_relation(tx, data):
 
 
 def _create_directed_by_relation(tx, data):
-    data['content_id'] = int(data['content_id'])  # Convert content_id to int
-    data['director_id'] = int(data['director_id'])  # Convert content_id to int
+    data["content_id"] = int(data["content_id"])  # Convert content_id to int
+    data["director_id"] = int(data["director_id"])  # Convert content_id to int
     query = """
     MATCH (c:Content {id: $content_id})
     MATCH (d:Staff:Director {id: $director_id})
@@ -864,8 +886,8 @@ def _create_content_relation(tx, data):
 
 
 def _create_gestion_relation(tx, data):
-    data['admin_id'] = int(data['admin_id'])  # Convert content_id to int
-    data['user_id'] = int(data['user_id'])  # Convert content_id to int
+    data["admin_id"] = int(data["admin_id"])  # Convert content_id to int
+    data["user_id"] = int(data["user_id"])  # Convert content_id to int
     print(data)
     query = """
     MATCH (a:Admin {id: $admin_id})
@@ -891,7 +913,7 @@ def edit_content_relation():
 
 
 def _edit_content_relation(tx, data):
-    data['content_id'] = int(data['content_id'])  # Convert content_id to int
+    data["content_id"] = int(data["content_id"])  # Convert content_id to int
     query = """
     MATCH (a:Admin {id: $admin_id})
     MATCH (c:Content {id: $content_id})
@@ -928,30 +950,30 @@ def _get_content_by_id(tx, content_id):
         """
         MATCH (c) WHERE c.id = $content_id RETURN c
         """,
-        content_id=content_id
+        content_id=content_id,
     )
     return result.single()
 
 
 def _update_movie(tx, movie_data):
-    movie_data['id'] = int(movie_data['id'])  # Convert id to int
+    movie_data["id"] = int(movie_data["id"])  # Convert id to int
     tx.run(
         """
         MATCH (m:Movie {id: $id})
         SET m.title = $title, m.release_date = $release_date, m.genre = $genre, m.duration = $duration, m.image = $image
         """,
-        **movie_data
+        **movie_data,
     )
 
 
 def _update_series(tx, series_data):
-    series_data['id'] = int(series_data['id'])  # Convert id to int
+    series_data["id"] = int(series_data["id"])  # Convert id to int
     tx.run(
         """
         MATCH (s:Series {id: $id})
         SET s.title = $title, s.release_date = $release_date, s.genre = $genre, s.episode_duration = $episode_duration, s.total_episodes = $total_episodes
         """,
-        **series_data
+        **series_data,
     )
 
 
@@ -961,7 +983,7 @@ def _delete_content(tx, content_id):
         """
         MATCH (c) WHERE c.id = $content_id DETACH DELETE c
         """,
-        content_id=content_id
+        content_id=content_id,
     )
 
 
@@ -971,7 +993,7 @@ def _delete_user(tx, user_id):
         """
         MATCH (u) WHERE u.id = $user_id DETACH DELETE u
         """,
-        user_id=user_id
+        user_id=user_id,
     )
 
 
@@ -983,6 +1005,61 @@ def _get_all_content(tx):
 def _get_all_users(tx):
     result = tx.run("MATCH (u:User) RETURN u")
     return [dict(record["u"]._properties) for record in result]
+
+
+def _mark_content_watched(tx, user_id, content_id):
+    query = """
+    MATCH (u:User {id: $user_id}), (m:Movie {id: $content_id})
+    CREATE (u)-[r:WATCHED {timestamp: timestamp()}]->(m)
+    """
+    tx.run(query, user_id=user_id, content_id=content_id)
+
+
+@app.route("/watched", methods=["POST"])
+def mark_watched():
+    user_id = session.get("user_id")
+    content_id = request.form.get("content_id")
+
+    with driver.session() as neo4j_session:
+        neo4j_session.write_transaction(_mark_content_watched, user_id, content_id)
+
+    return redirect(url_for("home"))
+
+
+def _get_watched_content(tx, user_id):
+    query = """
+    MATCH (u:User {id: $user_id})-[r:WATCHED]->(m:Movie)
+    RETURN m
+    """
+    result = tx.run(query, user_id=user_id)
+    return [record["m"] for record in result]
+
+
+def _get_recommendations(tx, user_id, genres):
+    query = """
+    MATCH (u:User {id: $user_id})
+    MATCH (m2:Movie) WHERE m2.genre IN $genres AND NOT EXISTS((u)-[:WATCHED]->(m2))
+    RETURN m2
+    """
+    result = tx.run(query, user_id=user_id, genres=genres)
+    return [record["m2"] for record in result]
+
+
+def generate_recommendations(user_id):
+    with driver.session() as session:
+        watched_content = session.read_transaction(_get_watched_content, user_id)
+        genres = set(movie["genre"] for movie in watched_content)
+        recommendations = session.read_transaction(
+            _get_recommendations, user_id, list(genres)
+        )
+    return recommendations
+
+
+@app.route("/recommendations", methods=["GET"])
+def get_recommendations():
+    user_id = session.get("user_id")
+    recommendations = generate_recommendations(user_id)
+    return render_template("recommendations.html", recommendations=recommendations)
 
 
 if __name__ == "__main__":
