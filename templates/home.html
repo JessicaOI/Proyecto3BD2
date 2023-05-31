@@ -61,7 +61,7 @@
 		</div>
 
 		<!-- Watched Movies -->
-		<div class="peliculas-recomendadas4 contenedor">
+		<div class="peliculas-recomendadas4">
 			<div class="contenedor-titulo-controles4">
 				<h3>Watched Movies</h3>
 				<div class="indicadores4"></div>
@@ -86,7 +86,7 @@
 		</div>
 
 		<!-- Recommendations -->
-		<div class="peliculas-recomendadas3 contenedor">
+		<div class="peliculas-recomendadas3">
 			<div class="contenedor-titulo-controles3">
 				<h3>Recommended Movies</h3>
 				<div class="indicadores4"></div>
@@ -111,7 +111,33 @@
 			</div>
 		</div>
 <!-- Carusel Peliculas -->
-		<div class="peliculas-recomendadas contenedor">
+		<div class="peliculas-recomendadas">
+			<div class="contenedor-titulo-controles">
+				<h3>Peliculas</h3>
+				<div class="indicadores"></div>
+			</div>
+
+			<div class="contenedor-principal">
+				<button role="button" id="flecha-izquierda" class="flecha-izquierda"><i
+						class="fas fa-angle-left"></i></button>
+
+				<div class="contenedor-carousel">
+					<div class="carousel">
+						{% for movie in movies %}
+						<div class="pelicula">
+							<img src="{{ movie.image }}" alt="{{ movie.title }}"
+								onclick="addToWatched('{{ movie.title }}')">
+								<button class="boton-favorito {% if movie.is_favorite %}favorito-activo{% endif %}" onclick="toggleFavoriteMovie(this, '{{ movie.title }}')"><i class="fas fa-star"></i>Favorito</button>
+						</div>						
+						{% endfor %}
+					
+					</div>
+				</div>
+				<button role="button" id="flecha-derecha" class="flecha-derecha"><i
+						class="fas fa-angle-right"></i></button>
+			</div>
+		<!-- Carusel Peliculas -->
+		<div class="peliculas-recomendadas">
 			<div class="contenedor-titulo-controles">
 				<h3>Peliculas</h3>
 				<div class="indicadores"></div>
@@ -137,7 +163,7 @@
 						class="fas fa-angle-right"></i></button>
 			</div>
 <!-- Carusel Series -->
-        <div class="peliculas-recomendadas2 contenedor">
+        <div class="peliculas-recomendadas2">
             <div class="contenedor-titulo-controles2">
                 <h3>Series</h3>
                 <div class="indicadores2"></div>
@@ -151,7 +177,7 @@
 							<div class="pelicula">
 								<img src="{{ serie.image }}" alt="{{ serie.title }}"
 								onclick="addToWatched('{{ serie.title }}')">
-								<button class="boton-favorito" onclick="toggleFavoriteSerie(this, '{{ serie.title }}')"><i class="fas fa-star"></i>Favorito</button>
+								<button class="boton-favorito {% if series.is_favorite %}favorito-activo{% endif %}" onclick="toggleFavoriteSeries(this, '{{ series.title }}')"><i class="fas fa-star"></i>Favorito</button>
 							</div>
 							{% endfor %}
 						</div>
