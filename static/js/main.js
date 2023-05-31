@@ -168,4 +168,3 @@ function toggleFavoriteSerie(button2, title) {
       .then(data => console.log(data))
       .catch(error => console.error('Error:', error));
 }
-
