@@ -1008,9 +1008,13 @@ def _get_all_users(tx):
 
 
 def _mark_content_watched(tx, user_id, content_id):
+
+    print(user_id)
+    print(content_id)
+
     query = """
-    MATCH (u:User {id: $user_id}), (m:Movie {id: $content_id})
-    CREATE (u)-[r:WATCHED {timestamp: timestamp()}]->(m)
+    MATCH (u:User {id: $user_id}), (m:Movie {title: $content_id})
+    MERGE (u)-[r:WATCHED {timestamp: timestamp()}]->(m)
     """
     tx.run(query, user_id=user_id, content_id=content_id)
 
@@ -1020,8 +1024,8 @@ def mark_watched():
     user_id = session.get("user_id")
     content_id = request.form.get("content_id")
 
-    print("USER ID", user_id)
-    print("CONTENT ID", content_id)
+    # print("USER ID", user_id)
+    # print("CONTENT ID", content_id)
 
     with driver.session() as neo4j_session:
         neo4j_session.write_transaction(_mark_content_watched, user_id, content_id)

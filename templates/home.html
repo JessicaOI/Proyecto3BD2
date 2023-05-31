@@ -149,7 +149,7 @@
 							{% for serie in series %}
 							<div class="pelicula">
 								<img src="{{ serie.image }}" alt="{{ serie.title }}"
-									onclick="addToWatched('{{ serie.id }}')">
+									onclick="addToWatched('{{ serie.title }}')">
 							</div>
 							{% endfor %}
 						</div>
