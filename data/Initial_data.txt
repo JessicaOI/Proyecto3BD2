@@ -38,7 +38,7 @@ ON MATCH SET p.name = row.name,
               p.nationality = row.nationality;
 
 
-LOAD CSV WITH HEADERS FROM 'https://drive.google.com/uc?export=download&id=1jV7mn1yXlgJwaOM0EuWMmifvfGPnL0AA' AS row
+LOAD CSV WITH HEADERS FROM 'https://drive.google.com/uc?export=download&id=1du7k57d4vKSIObh2kzF4vuQ9dFNTfrEZ' AS row
 MERGE (p:Personal:Actor {id: toInteger(row.id)})
 ON CREATE SET p.name = row.name,
               p.dob = date(row.dob),
@@ -50,5 +50,36 @@ ON MATCH SET p.name = row.name,
               p.nationality = row.nationality,
 		  p.awards = row.awards,
 	        p.role = row.role
+
+
+
+LOAD CSV WITH HEADERS FROM 'https://drive.google.com/uc?export=download&id=1yAutPwIa79d1sSSR3O42MsTp3aodbRiv' AS row
+MATCH (m:Movie {id: toInteger(row.movie_id)})
+MATCH (a:Actor {id: toInteger(row.actor_id)})
+CREATE (m)-[:ACTUADO_POR {
+  character: row.character,
+  hiring_date: date(row.hiring_date),
+  salary: toInteger(row.salary)
+}]->(a);
+
+
+LOAD CSV WITH HEADERS FROM 'https://drive.google.com/uc?export=download&id=1NZX3Rmv05yoQcsou0R7s0KVWoPb_nSUX' AS row
+MATCH (m:Movie {id: toInteger(row.movie_id)})
+MATCH (d:Director {id: toInteger(row.actor_id)})
+CREATE (m)-[:DIRIGIDO_POR {
+  hiring_date: date(row.hiring_date),
+  salary: toInteger(row.salary)
+}]->(d);
+
+LOAD CSV WITH HEADERS FROM 'https://drive.google.com/uc?export=download&id=1rukV0N6_cjPqp77wdnXlDxkb-aoWUce-' AS row
+MATCH (m:Movie {title: row.source_movie})
+MATCH (m1:Movie {title: row.target_movie})
+CREATE (m)-[:SECUELA {
+  numero_secuela: toInteger(row.numero_secuela),
+  orden_popularidad: toInteger(row.orden_popularidad)
+}]->(m1);
+
+
+
 
 
