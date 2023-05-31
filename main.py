@@ -1020,10 +1020,16 @@ def mark_watched():
     user_id = session.get("user_id")
     content_id = request.form.get("content_id")
 
+    print("USER ID", user_id)
+    print("CONTENT ID", content_id)
+
     with driver.session() as neo4j_session:
         neo4j_session.write_transaction(_mark_content_watched, user_id, content_id)
 
-    return redirect(url_for("home"))
+    # Perform any other actions or return a different response as needed
+
+    # For example, you can return a JSON response indicating success
+    return {"message": "Content marked as watched"}
 
 
 def _get_watched_content(tx, user_id):

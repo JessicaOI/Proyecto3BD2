@@ -101,7 +101,7 @@
 						{% for movie in recommendations %}
 						<div class="pelicula">
 							<img src="{{ movie.image }}" alt="{{ movie.title }}"
-								onclick="addToWatched('{{ movie.id }}')">
+								onclick="addToWatched('{{ movie.title }}')">
 						</div>
 						{% endfor %}
 					</div>
@@ -126,7 +126,7 @@
 						{% for movie in movies %}
 						<div class="pelicula">
 							<img src="{{ movie.image }}" alt="{{ movie.title }}"
-								onclick="addToWatched('{{ movie.id }}')">
+								onclick="addToWatched('{{ movie.title }}')">
 						</div>
 						{% endfor %}
 					</div>
