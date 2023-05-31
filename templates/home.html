@@ -152,7 +152,7 @@
 							<div class="pelicula">
 								<img src="{{ serie.image }}" alt="{{ serie.title }}"
 								onclick="addToWatched('{{ serie.title }}')">
-								<button class="boton-favorito {% if series.is_favorite %}favorito-activo{% endif %}" onclick="toggleFavoriteSeries(this, '{{ series.title }}')"><i class="fas fa-star"></i>Favorito</button>
+								<button class="boton-favorito {% if serie.is_favorite %}favorito-activo{% endif %}" onclick="toggleFavoriteSerie(this, '{{ serie.title }}')"><i class="fas fa-star"></i>Favorito</button>
 							</div>
 							{% endfor %}
 						</div>

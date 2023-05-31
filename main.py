@@ -682,7 +682,6 @@ def get_series(tx):
     # print(records)
     return records
 
-
 @app.route("/movies")
 def movies():
     user_id = session.get("user_id")
@@ -692,13 +691,16 @@ def movies():
         series_list = neo4j_session.read_transaction(get_series)
         watched_movies = neo4j_session.read_transaction(_get_watched_content, user_id)
         recommendations = generate_recommendations(user_id)
-        movie_list = [dict(movie) for movie in movie_list]
 
+        movie_list = [dict(movie) for movie in movie_list]
         for movie in movie_list:
             is_fav = neo4j_session.read_transaction(is_favorite, user_id, movie["title"])
-            #print(f"{movie['title']} is favorite: {is_fav}")
             movie["is_favorite"] = is_fav
 
+        series_list = [dict(series) for series in series_list]
+        for series in series_list:
+            is_fav = neo4j_session.read_transaction(is_favorite_series, user_id, series["title"])
+            series["is_favorite"] = is_fav
 
 
     return render_template(
@@ -947,6 +949,14 @@ def is_favorite(tx, user_id, movie_title):
     return result.single() is not None
 
 
+def is_favorite_series(tx, user_id, series_title):
+    query = """
+    MATCH (u:User {id: $user_id})-[r:FAVORITE]->(s:Series {title: $series_title})
+    RETURN r
+    """
+    result = tx.run(query, user_id=user_id, series_title=series_title)
+    return result.single() is not None
+
 
 def _add_favorite_movie(tx, user_id, movie_title):
     query = """
@@ -1033,7 +1043,8 @@ def remove_favorite_series():
     user_id = session_flask.get('user_id')
     # Obtenemos el titulo de la serie desde el body del request
     series_title = request.form.get('series_title')
-
+    print(user_id)
+    print(series_title)
     with driver.session() as session:
         session.write_transaction(_remove_favorite_series, user_id, series_title)
 
