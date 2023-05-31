@@ -1054,7 +1054,7 @@ def _get_recommendations(tx, user_id, genres):
 def generate_recommendations(user_id):
     with driver.session() as session:
         watched_content = session.read_transaction(_get_watched_content, user_id)
-        genres = set(movie["genre"] for movie in watched_content)
+        genres = set(tuple(movie["genre"]) for movie in watched_content)
         recommendations = session.read_transaction(
             _get_recommendations, user_id, list(genres)
         )
