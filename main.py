@@ -634,7 +634,7 @@ def add_user_admin():
 
 @app.route("/delete_user/<user_id>", methods=["POST"])
 def delete_user(user_id):
-    print(user_id)
+    # print(user_id)
     with driver.session() as session:
         session.write_transaction(_delete_user, user_id)
     flash("Usuario eliminado con éxito")
@@ -898,7 +898,7 @@ def _create_content_relation(tx, data):
 def _create_gestion_relation(tx, data):
     data["admin_id"] = int(data["admin_id"])  # Convert content_id to int
     data["user_id"] = int(data["user_id"])  # Convert content_id to int
-    print(data)
+    # print(data)
     query = """
     MATCH (a:Admin {id: $admin_id})
     MATCH (u:User {id: $user_id})
@@ -986,8 +986,8 @@ def add_favorite_movie():
     user_id = session_flask.get('user_id')
     # Obtenemos el titulo de la película desde el body del request
     movie_title = request.form.get('movie_title')
-    print(user_id)
-    print(movie_title)
+    # print(user_id)
+    # print(movie_title)
 
     with driver.session() as neo4j_session:
         neo4j_session.write_transaction(_add_favorite_movie, user_id, movie_title)
@@ -1043,8 +1043,8 @@ def remove_favorite_series():
     user_id = session_flask.get('user_id')
     # Obtenemos el titulo de la serie desde el body del request
     series_title = request.form.get('series_title')
-    print(user_id)
-    print(series_title)
+    # print(user_id)
+    # print(series_title)
     with driver.session() as session:
         session.write_transaction(_remove_favorite_series, user_id, series_title)
 
@@ -1131,8 +1131,8 @@ def _get_all_users(tx):
 
 def _mark_content_watched(tx, user_id, content_id):
 
-    print(user_id)
-    print(content_id)
+    # print(user_id)
+    # print(content_id)
 
     query = query = """
     MATCH (u:User {id: $user_id}), (c:Content {title: $content_id})
@@ -1146,8 +1146,8 @@ def mark_watched():
     user_id = session.get("user_id")
     content_id = request.form.get("content_id")
 
-    print(user_id)
-    print(content_id)
+    # print(user_id)
+    # print(content_id)
 
     # print("USER ID", user_id)
     # print("CONTENT ID", content_id)
@@ -1195,6 +1195,37 @@ def get_recommendations():
     user_id = session.get("user_id")
     recommendations = generate_recommendations(user_id)
     return render_template("recommendations.html", recommendations=recommendations)
+
+# Busqueda
+@app.route('/buscar_contenido', methods=['GET', 'POST'])
+def buscar_contenido():
+    if request.method == 'POST':
+        userInput = request.form['user_input']
+
+        with driver.session() as session:
+            result = session.run("""
+            WITH $userInput AS userInput
+            MATCH (c:Content)
+            WHERE toLower(c.title) CONTAINS toLower(userInput)
+            WITH c.title AS contenidoTitulo
+            LIMIT 1
+
+            MATCH (c1:Content {title: contenidoTitulo})
+            OPTIONAL MATCH (c1)-[r:ACTUADO_POR|DIRIGIDO_POR|SECUELA]-(related)
+            RETURN c1.title AS nodoPrincipal, collect(DISTINCT related) AS nodosRelacionados, collect(DISTINCT r) AS relaciones
+            """, userInput=userInput)
+
+            record = result.single()
+
+            nodoPrincipal = record['nodoPrincipal']
+            nodosRelacionados = record['nodosRelacionados']
+            relaciones = record['relaciones']
+
+            data = list(zip(nodosRelacionados, relaciones))
+
+            return render_template('/busqueda.html', nodoPrincipal=nodoPrincipal, data=data)
+
+    return render_template('/busqueda.html')
 
 
 if __name__ == "__main__":
