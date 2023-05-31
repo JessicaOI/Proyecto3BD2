@@ -691,6 +691,7 @@ def movies():
         movie_list = neo4j_session.read_transaction(get_movies)
         series_list = neo4j_session.read_transaction(get_series)
         watched_movies = neo4j_session.read_transaction(_get_watched_content, user_id)
+        favorite_movies = neo4j_session.read_transaction(_get_favorite_content, user_id)
         recommendations = generate_recommendations(user_id)
 
         movie_list = [dict(movie) for movie in movie_list]
@@ -712,6 +713,7 @@ def movies():
         movies=movie_list,
         series=series_list,
         watched_movies=watched_movies,
+        favorite_movies=favorite_movies,
         recommendations=recommendations,
     )
 
@@ -1188,6 +1190,15 @@ def _get_watched_content(tx, user_id):
     ]
 
 
+def _get_favorite_content(tx, user_id):
+    query = """
+    MATCH (u:User {id: $user_id})-[r:FAVORITE]->(c:Content)
+    RETURN c
+    """
+    result = tx.run(query, user_id=user_id)
+    return [record["c"] for record in result]
+
+
 def _get_recommendations(tx, user_id, genres):
     query = """
     MATCH (u:User {id: $user_id})
@@ -1237,19 +1248,22 @@ def buscar_contenido():
                 userInput=userInput,
             )
 
-            record = result.single()
-
-            nodoPrincipal = record["nodoPrincipal"]
-            nodosRelacionados = record["nodosRelacionados"]
-            relaciones = record["relaciones"]
-
-            data = list(zip(nodosRelacionados, relaciones))
+            if not result.peek():
+                nodoPrincipal = None
+                data = None
+            else:
+                record = result.single()
+                nodoPrincipal = record['nodoPrincipal']
+                nodosRelacionados = record['nodosRelacionados']
+                relaciones = record['relaciones']
+                data = list(zip(nodosRelacionados, relaciones))
 
             return render_template(
                 "/busqueda.html", nodoPrincipal=nodoPrincipal, data=data
             )
 
     return render_template("/busqueda.html")
+
 
 
 if __name__ == "__main__":
