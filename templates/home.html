@@ -61,18 +61,18 @@
 		</div>
 
 		<!-- Watched Movies -->
-		<div class="peliculas-recomendadas4 contenedor">
-			<div class="contenedor-titulo-controles4">
+		<div class="peliculas-recomendadas">
+			<div class="contenedor-titulo-controles">
 				<h3>Watched Movies</h3>
-				<div class="indicadores4"></div>
+				<!-- <div class="indicadores"></div> -->
 			</div>
 
-			<div class="contenedor-principal4">
-				<button role="button" id="flecha-izquierda4" class="flecha-izquierda4"><i
+			<div class="contenedor-principal">
+				<button role="button" id="flecha-izquierda" class="flecha-izquierda"><i
 						class="fas fa-angle-left"></i></button>
 
-				<div class="contenedor-carousel4">
-					<div class="carousel2">
+				<div class="contenedor-carousel">
+					<div class="carousel">
 						{% for movie in watched_movies %}
 						<div class="pelicula">
 							<img src="{{ movie.image }}" alt="{{ movie.title }}">
@@ -80,24 +80,24 @@
 						{% endfor %}
 					</div>
 				</div>
-				<button role="button" id="flecha-derecha4" class="flecha-derecha4"><i
+				<button role="button" id="flecha-derecha" class="flecha-derecha"><i
 						class="fas fa-angle-right"></i></button>
 			</div>
 		</div>
 
 		<!-- Recommendations -->
-		<div class="peliculas-recomendadas3 contenedor">
-			<div class="contenedor-titulo-controles3">
+		<div class="peliculas-recomendadas">
+			<div class="contenedor-titulo-controles">
 				<h3>Recommended Movies</h3>
-				<div class="indicadores4"></div>
+				<!-- <div class="indicadores"></div> -->
 			</div>
 
-			<div class="contenedor-principal3">
-				<button role="button" id="flecha-izquierda3" class="flecha-izquierda3"><i
+			<div class="contenedor-principal">
+				<button role="button" id="flecha-izquierda" class="flecha-izquierda"><i
 						class="fas fa-angle-left"></i></button>
 
-				<div class="contenedor-carousel3">
-					<div class="carousel2">
+				<div class="contenedor-carousel">
+					<div class="carousel">
 						{% for movie in recommendations %}
 						<div class="pelicula">
 							<img src="{{ movie.image }}" alt="{{ movie.title }}"
@@ -106,15 +106,16 @@
 						{% endfor %}
 					</div>
 				</div>
-				<button role="button" id="flecha-derecha3" class="flecha-derecha3"><i
+				<button role="button" id="flecha-derecha" class="flecha-derecha"><i
 						class="fas fa-angle-right"></i></button>
 			</div>
 		</div>
-<!-- Carusel Peliculas -->
-		<div class="peliculas-recomendadas contenedor">
+
+		<!-- Carusel Peliculas -->
+		<div class="peliculas-recomendadas">
 			<div class="contenedor-titulo-controles">
 				<h3>Peliculas</h3>
-				<div class="indicadores"></div>
+				<!-- <div class="indicadores" style="background-color: rgb(0, 0, 0);"></div> -->
 			</div>
 
 			<div class="contenedor-principal">
@@ -137,10 +138,10 @@
 						class="fas fa-angle-right"></i></button>
 			</div>
 <!-- Carusel Series -->
-        <div class="peliculas-recomendadas2 contenedor">
+        <div class="peliculas-recomendadas2">
             <div class="contenedor-titulo-controles2">
                 <h3>Series</h3>
-                <div class="indicadores2"></div>
+                <!-- <div class="indicadores2"></div> -->
             </div>
             <div class="contenedor-principal2">
                 <button role="button" id="flecha-izquierda2" class="flecha-izquierda2"><i class="fas fa-angle-left"></i></button>
@@ -151,7 +152,7 @@
 							<div class="pelicula">
 								<img src="{{ serie.image }}" alt="{{ serie.title }}"
 								onclick="addToWatched('{{ serie.title }}')">
-								<button class="boton-favorito" onclick="toggleFavoriteSerie(this, '{{ serie.title }}')"><i class="fas fa-star"></i>Favorito</button>
+								<button class="boton-favorito {% if serie.is_favorite %}favorito-activo{% endif %}" onclick="toggleFavoriteSerie(this, '{{ serie.title }}')"><i class="fas fa-star"></i>Favorito</button>
 							</div>
 							{% endfor %}
 						</div>
