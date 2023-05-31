@@ -130,7 +130,7 @@ const peliculas3 = document.querySelectorAll('.pelicula');
 const flechaIzquierda3 = document.getElementById('flecha-izquierda3');
 const flechaDerecha3 = document.getElementById('flecha-derecha3');
 
-// Event Listener para la flecha derecha del segundo carrusel
+// Event Listener para la flecha derecha del tercer carrusel
 flechaDerecha3.addEventListener('click', () => {
 	fila3.scrollLeft += fila3.offsetWidth;
 
@@ -141,7 +141,7 @@ flechaDerecha3.addEventListener('click', () => {
 	}
 });
 
-// Event Listener para la flecha izquierda del segundo carrusel
+// Event Listener para la flecha izquierda del tercer carrusel
 flechaIzquierda3.addEventListener('click', () => {
 	fila3.scrollLeft -= fila3.offsetWidth;
 
@@ -152,7 +152,7 @@ flechaIzquierda3.addEventListener('click', () => {
 	}
 });
 
-// Paginación para el segundo carrusel
+// Paginación para el tercer carrusel
 const numeroPaginas3 = Math.ceil(peliculas3.length / 10);
 for(let i = 0; i < numeroPaginas3; i++){
 	const indicador = document.createElement('button');
@@ -170,7 +170,7 @@ for(let i = 0; i < numeroPaginas3; i++){
 	});
 }
 
-// Hover para el segundo carrusel
+// Hover para el tercer  carrusel
 peliculas3.forEach((pelicula) => {
 	pelicula.addEventListener('mouseenter', (e) => {
 		const elemento = e.currentTarget;
